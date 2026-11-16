@@ -1,4 +1,4 @@
-"""Mark Editor TUI -- entry point."""
+"""Mark Editor TUI -- command-line entry point."""
 
 from __future__ import annotations
 
@@ -11,21 +11,39 @@ from mark_editor_tui.app import MarkEditorApp
 from mark_editor_tui.constants import APP_NAME, RELEASE, VERSION
 
 
-def build_parser() -> argparse.ArgumentParser:
+def _program_name() -> str:
+    """Return a concise program name for usage and help output."""
+    name = Path(sys.argv[0]).name
+    if name in {"", "__main__.py", "-c"}:
+        return "mark_editor_tui"
+    return name
+
+
+def build_parser(prog: str | None = None) -> argparse.ArgumentParser:
     """Return the command-line argument parser."""
     parser = argparse.ArgumentParser(
-        prog="mark_editor_tui",
-        description=f"{APP_NAME} {VERSION} -- a terminal Markdown editor.",
+        prog=prog or _program_name(),
+        description=(
+            f"{APP_NAME} {VERSION} -- a terminal Markdown editor built with Textual. "
+            "Edit Markdown with syntax highlighting and export to HTML or PDF."
+        ),
+        epilog=(
+            "Without FILE the editor starts with an empty document. "
+            "Press F1 for the full shortcut list and F10 to quit."
+        ),
     )
     parser.add_argument(
         "file",
         nargs="?",
+        metavar="FILE",
         help="Markdown file to open on startup.",
     )
     parser.add_argument(
+        "-v",
         "--version",
         action="version",
         version=f"{APP_NAME} {VERSION} ({RELEASE})",
+        help="show version information and exit.",
     )
     return parser
 

@@ -1,6 +1,27 @@
+# Byte-compiled / cached files
 __pycache__/
 *.py[cod]
-*.egg-info/
+*$py.class
+
+# Packaging and build output
 build/
+dist/
+bin/mark-editor-bin
+*.egg-info/
+*.egg
+*.whl
+
+# Virtual environments
 .venv/
 venv/
+
+# Tool caches
+.ruff_cache/
+.pytest_cache/
+.mypy_cache/
+
+# Editors and operating systems
+.idea/
+.vscode/
+*.swp
+.DS_Store

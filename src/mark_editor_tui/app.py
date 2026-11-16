@@ -1,4 +1,4 @@
-"""Textual application for Mark Editor TUI 0.1."""
+"""Textual application for Mark Editor TUI 0.1.1."""
 
 from __future__ import annotations
 
@@ -19,6 +19,7 @@ from textual.widgets import Static, TextArea
 from textual.widgets.text_area import Selection
 
 from mark_editor_tui import markdown_ops
+from mark_editor_tui.compat import restore_alt_key_shortcuts
 from mark_editor_tui.constants import (
     APP_NAME,
     DEFAULT_THEME,
@@ -218,7 +219,7 @@ class MarkEditorApp(App[None]):
         ),
         Binding("alt+g", "image", "Image", show=False, priority=True),
         Binding(
-            "alt+-", "horizontal_rule", "Horizontal rule", show=False, priority=True
+            "alt+minus", "horizontal_rule", "Horizontal rule", show=False, priority=True
         ),
         Binding("alt+enter", "line_break", "Line break", show=False, priority=True),
         Binding("ctrl+shift+y", "yaml_front_matter", "YAML", show=False, priority=True),
@@ -315,6 +316,7 @@ class MarkEditorApp(App[None]):
 
     def __init__(self, initial_file: Path | None = None) -> None:
         """Create the application, optionally opening *initial_file*."""
+        restore_alt_key_shortcuts()
         super().__init__()
         for theme in APP_THEMES.values():
             self.register_theme(theme)

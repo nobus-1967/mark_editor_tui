@@ -1,8 +1,10 @@
 #!/usr/bin/env python3
-"""Tests for Mark Editor TUI 0.1."""
+"""Tests for Mark Editor TUI 0.1.1."""
 
 from __future__ import annotations
 
+import contextlib
+import io
 import sys
 import tempfile
 import unittest
@@ -10,7 +12,10 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
 
+from textual._xterm_parser import XTermParser
+
 from mark_editor_tui import markdown_ops as ops
+from mark_editor_tui.compat import restore_alt_key_shortcuts
 from mark_editor_tui.constants import (
     APP_NAME,
     CONFIG_DIR,
@@ -35,6 +40,7 @@ from mark_editor_tui.helpers import (
     remove_toc,
     save_theme,
 )
+from mark_editor_tui.main import build_parser, main
 from mark_editor_tui.themes import APP_THEMES, EDITOR_THEMES
 
 
@@ -66,8 +72,8 @@ class TestAppMetadata(unittest.TestCase):
         self.assertEqual(APP_NAME, "Mark Editor TUI")
 
     def test_version(self) -> None:
-        """The application version is 0.1."""
-        self.assertEqual(VERSION, "0.1")
+        """The application version is 0.1.1."""
+        self.assertEqual(VERSION, "0.1.1")
 
     def test_release(self) -> None:
         """The release identifier is present."""
@@ -169,6 +175,62 @@ class TestAppMetadata(unittest.TestCase):
             EDITOR_THEMES["blue"].gutter_style.color.get_truecolor().hex,
             "#ffff55",
         )
+
+
+class TestCommandLine(unittest.TestCase):
+    """Verify the command-line help and version options."""
+
+    def _run(self, arguments: list[str]) -> tuple[int, str]:
+        """Run *arguments* through ``main`` and capture standard output."""
+        capture = io.StringIO()
+        with (
+            self.assertRaises(SystemExit) as raised,
+            contextlib.redirect_stdout(capture),
+        ):
+            main(arguments)
+        return raised.exception.code, capture.getvalue()
+
+    def test_short_version(self) -> None:
+        """-v prints the application name, version and release."""
+        code, output = self._run(["-v"])
+        self.assertEqual(code, 0)
+        self.assertIn(f"{APP_NAME} {VERSION} ({RELEASE})", output)
+
+    def test_long_version(self) -> None:
+        """--version behaves exactly like -v."""
+        short_code, short_output = self._run(["-v"])
+        long_code, long_output = self._run(["--version"])
+        self.assertEqual(short_code, long_code)
+        self.assertEqual(short_output, long_output)
+
+    def test_short_help(self) -> None:
+        """-h prints a brief description, the options and the FILE argument."""
+        capture = io.StringIO()
+        with (
+            self.assertRaises(SystemExit) as raised,
+            contextlib.redirect_stdout(capture),
+        ):
+            build_parser(prog="mark_editor_tui").parse_args(["-h"])
+        self.assertEqual(raised.exception.code, 0)
+        output = capture.getvalue()
+        self.assertIn("usage: mark_editor_tui", output)
+        self.assertIn(APP_NAME, output)
+        self.assertIn("terminal Markdown editor", output)
+        self.assertIn("FILE", output)
+        self.assertIn("-v, --version", output)
+        self.assertIn("-h, --help", output)
+
+    def test_help_via_main(self) -> None:
+        """The entry point handles -h without starting the editor."""
+        code, output = self._run(["-h"])
+        self.assertEqual(code, 0)
+        self.assertIn("usage:", output)
+        self.assertIn("terminal Markdown editor", output)
+
+    def test_program_name_in_usage(self) -> None:
+        """The parser accepts an explicit program name for help output."""
+        parser = build_parser(prog="mark-editor-bin")
+        self.assertEqual(parser.prog, "mark-editor-bin")
 
 
 class TestThemeStorage(_IsolatedCacheMixin, unittest.TestCase):
@@ -647,6 +709,48 @@ class TestHelpText(unittest.TestCase):
                 part = raw_part.strip()
                 if part:
                     self.assertIn(part, text, f"{label}: {part} is missing")
+
+
+class TestAltKeyCompat(unittest.TestCase):
+    """Alt+digit and Alt+punctuation survive the terminal escape encoding."""
+
+    def setUp(self) -> None:
+        """Apply the compatibility fixes before parsing test sequences."""
+        restore_alt_key_shortcuts()
+
+    @staticmethod
+    def _parse(sequence: str) -> list[str]:
+        """Return the key names Textual reports for *sequence*."""
+        parser = XTermParser()
+        return [event.key for event in parser.feed(sequence)] + [
+            event.key for event in parser.feed("")
+        ]
+
+    def test_alt_digits_are_not_typographic_characters(self) -> None:
+        """Alt+0..9 is reported as alt+digit, not as a punctuation character."""
+        for digit in "0123456789":
+            with self.subTest(digit=digit):
+                self.assertEqual(self._parse(f"\x1b{digit}"), [f"alt+{digit}"])
+
+    def test_alt_punctuation_keeps_modifier(self) -> None:
+        """Alt+- and Alt+= keep the Alt modifier in their key names."""
+        self.assertEqual(self._parse("\x1b-"), ["alt+minus"])
+        self.assertEqual(self._parse("\x1b="), ["alt+equals_sign"])
+
+    def test_alt_enter_keeps_modifier(self) -> None:
+        """Alt+Enter is reported as alt+enter, not as a plain Enter."""
+        self.assertEqual(self._parse("\x1b\r"), ["alt+enter"])
+
+    def test_alt_letters_are_unchanged(self) -> None:
+        """Alt+letter and Alt+Shift+letter still produce their usual names."""
+        self.assertEqual(self._parse("\x1ba"), ["alt+a"])
+        self.assertEqual(self._parse("\x1bA"), ["alt+shift+a"])
+
+    def test_plain_keys_are_unchanged(self) -> None:
+        """Digit, hyphen and Enter typed without Alt keep their key names."""
+        self.assertEqual(self._parse("1"), ["1"])
+        self.assertEqual(self._parse("-"), ["minus"])
+        self.assertEqual(self._parse("\r"), ["enter"])
 
 
 class TestTextualApp(_IsolatedCacheMixin, unittest.IsolatedAsyncioTestCase):

@@ -1,12 +1,12 @@
 # Mark Editor TUI
 
-![](./assets/images/mark_editor_tui_0_1.png "Mark Editor TUI 0.1 Screenshot")
+![](./assets/images/mark_editor_tui_0_1.png "Mark Editor TUI 0.1.1 Screenshot")
 
-A terminal Markdown editor written in Python with [Textual](https://textual.textualize.io/). It runs in any reasonably modern terminal on Linux, macOS or Windows.
+A terminal Markdown editor written in Python with [Textual](https://textual.textualize.io/). It runs in a reasonably modern terminal on Linux.
 
 Mark Editor TUI is based on [Mark Editor](https://github.com/nobus-1967/mark_editor). HTML and plain-text conversion is provided by [markdown2html5-base](https://github.com/nobus-1967/markdown2html5-base), and PDF export uses [markdown2pdf-base](https://github.com/nobus-1967/markdown2pdf-base).
 
-**Version 0.1** (release 2026.11)
+**Version 0.1.1** (release 2026.11)
 
 ## Features
 
@@ -28,6 +28,7 @@ Browser preview is intentionally **not** part of the TUI. Use the HTML5 or PDF e
 
 ## Requirements
 
+- Linux.
 - Python 3.10 or newer.
 - [Textual](https://pypi.org/project/textual/) 8 or newer.
 - [markdown2html5-base](https://github.com/nobus-1967/markdown2html5-base) for
@@ -66,6 +67,13 @@ PYTHONPATH=src ../venv/bin/python -m mark_editor_tui [FILE]
 ```
 
 The optional `FILE` argument opens a Markdown document at startup.
+
+Command-line options:
+
+| Option | Description |
+| :--- | :--- |
+| `-h`, `--help` | Show a brief description of the program and its options. |
+| `-v`, `--version` | Print the application name, version and release, then exit. |
 
 ## Function-key layout
 
@@ -106,7 +114,7 @@ Desktop editors use several key combinations that a terminal cannot deliver or t
 | Italic            | `Alt+I`               | `Ctrl+I` is the same byte as Tab.                            |
 | Comment           | `Alt+M`               | `Ctrl+M` is the same byte as Enter.                          |
 | Line break        | `Alt+Enter`           | `Ctrl+\` sends `SIGQUIT`.                                    |
-| Headings 1–6      | `Alt+1` … `Alt+6`     | `Ctrl+Alt+1` may be grabbed by the desktop.                  |
+| Headings 1–6      | `Alt+1` … `Alt+6`     | GNOME Terminal sends `ESC`+digit; the app restores `Alt`+digit. |
 | Paragraph         | `Alt+0`               | —                                                            |
 | Blockquote        | `Alt+Q`               | `Ctrl+Shift+Q` closes a window in some terminals.            |
 | Todo list         | `Alt+C`               | `Ctrl+Shift+C` is terminal copy.                             |
@@ -275,6 +283,39 @@ cd application
 ```
 
 The wheel contains the `mark_editor_tui` package and the Textual stylesheet. PDF export still relies on the host `pandoc` and XeLaTeX.
+
+## Single-file Linux binary
+
+`build.sh` uses PyInstaller to bundle Python, Textual, and all runtime dependencies into one executable. The result is Linux-only and targets the CPU architecture and glibc version of the build host.
+
+Install PyInstaller into the project virtual environment:
+
+```bash
+# from the repository root
+venv/bin/python -m pip install pyinstaller
+```
+
+Then build the binary:
+
+```bash
+cd application
+./build.sh
+```
+
+The script writes `bin/mark-editor-bin` and prints its size and SHA256 checksum. The executable is self-contained, so Python does not need to be installed on the target system. To install it for the current user:
+
+```bash
+install -m 755 bin/mark-editor-bin ~/.local/bin/mark-editor-bin
+```
+
+Run it like the regular command:
+
+```bash
+~/.local/bin/mark-editor-bin --version
+~/.local/bin/mark-editor-bin document.md
+```
+
+PDF export still requires `pandoc` and XeLaTeX on the host.
 
 ## Keyboard shortcuts
 
