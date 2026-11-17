@@ -1,4 +1,4 @@
-"""Textual application for Mark Editor TUI 0.1.1."""
+"""Textual application for Mark Editor TUI 0.2.0."""
 
 from __future__ import annotations
 
@@ -423,7 +423,7 @@ class MarkEditorApp(App[None]):
         self.editor.load_text(text)
 
     def _apply_theme(self, mode: str) -> None:
-        """Apply the default, green, magenta or blue colour theme."""
+        """Apply the default, green, magenta or blue color theme."""
         mode = mode if mode in THEMES else DEFAULT_THEME
         self.theme_mode = mode
         self.theme = APP_THEMES[mode].name

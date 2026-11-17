@@ -10,7 +10,7 @@ from mark_editor_tui.themes import EDITOR_THEMES
 
 
 class MarkdownEditor(TextArea):
-    """A Markdown TextArea with the application colour themes.
+    """A Markdown TextArea with the application color themes.
 
     The editor keeps the normal TextArea navigation keys, but exposes a small
     set of helpers used by the application actions. Global shortcuts live on
@@ -22,7 +22,7 @@ class MarkdownEditor(TextArea):
     ]
 
     def __init__(self, text: str = "", *, mode: str = DEFAULT_THEME, **kwargs) -> None:
-        """Create a Markdown editor using the colour theme for *mode*."""
+        """Create a Markdown editor using the color theme for *mode*."""
         super().__init__(
             text,
             language="markdown",

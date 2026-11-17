@@ -12,7 +12,7 @@ def shortcuts_markdown() -> str:
     listed with all of its shortcuts. ``Ctrl+P`` is added separately because
     the command palette is not part of a menu.
     """
-    return f"""# {APP_NAME} {VERSION} — Keyboard Shortcuts
+    return f"""# {APP_NAME} {VERSION} ({RELEASE}) — Keyboard Shortcuts
 
 The application runs in a terminal. The F1–F12 row follows the classic
 console-editor layout and is the primary shortcut set. Ctrl and Alt combinations

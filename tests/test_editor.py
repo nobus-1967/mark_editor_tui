@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Tests for Mark Editor TUI 0.1.1."""
+"""Tests for Mark Editor TUI 0.2.0."""
 
 from __future__ import annotations
 
@@ -72,15 +72,15 @@ class TestAppMetadata(unittest.TestCase):
         self.assertEqual(APP_NAME, "Mark Editor TUI")
 
     def test_version(self) -> None:
-        """The application version is 0.1.1."""
-        self.assertEqual(VERSION, "0.1.1")
+        """The application version is 0.2.0."""
+        self.assertEqual(VERSION, "0.2.0")
 
     def test_release(self) -> None:
         """The release identifier is present."""
         self.assertTrue(RELEASE)
 
     def test_themes(self) -> None:
-        """The four colour modes map to application and editor themes."""
+        """The four color modes map to application and editor themes."""
         self.assertEqual(set(THEMES), {"default", "green", "magenta", "blue"})
         self.assertEqual(set(APP_THEMES), set(THEMES))
         self.assertEqual(set(EDITOR_THEMES), set(THEMES))
@@ -102,7 +102,7 @@ class TestAppMetadata(unittest.TestCase):
             self.assertEqual(editor_theme.syntax_styles, {})
 
     def test_palette_roles(self) -> None:
-        """Default is monochrome, green and magenta replace white, blue is CRT."""
+        """Default is monochrome; green, magenta and blue replace white with hues."""
         default = APP_THEMES["default"]
         self.assertEqual(default.background, "#000000")
         self.assertEqual(default.foreground, "#ffffff")
@@ -126,19 +126,20 @@ class TestAppMetadata(unittest.TestCase):
         self.assertEqual(magenta.variables["menu-active-foreground"], "#000000")
 
         blue = APP_THEMES["blue"]
-        self.assertEqual(blue.background, "#0000aa")
-        self.assertEqual(blue.foreground, "#55ffff")
-        self.assertEqual(blue.secondary, "#aaaaaa")
-        self.assertEqual(blue.variables["menu-background"], "#00aaaa")
-        self.assertEqual(blue.variables["menu-foreground"], "#ffffff")
-        self.assertEqual(blue.variables["menu-active-foreground"], "#ffff55")
-        self.assertEqual(blue.variables["editor-background"], "#0000aa")
-        self.assertEqual(blue.variables["editor-foreground"], "#55ffff")
-        self.assertEqual(blue.variables["status-background"], "#00aaaa")
-        self.assertEqual(blue.variables["status-foreground"], "#000000")
+        self.assertEqual(blue.background, "#000055")
+        self.assertEqual(blue.foreground, "#e8f1ff")
+        self.assertEqual(blue.secondary, "#8aa9d6")
+        self.assertEqual(blue.success, "#00ff00")
+        self.assertEqual(blue.variables["menu-background"], "#000055")
+        self.assertEqual(blue.variables["menu-foreground"], "#e8f1ff")
+        self.assertEqual(blue.variables["menu-active-foreground"], "#000033")
+        self.assertEqual(blue.variables["editor-background"], "#000055")
+        self.assertEqual(blue.variables["editor-foreground"], "#e8f1ff")
+        self.assertEqual(blue.variables["status-background"], "#00106b")
+        self.assertEqual(blue.variables["status-foreground"], "#e8f1ff")
 
     def test_editor_palettes(self) -> None:
-        """Editor base, selection and gutter colours follow each theme."""
+        """Editor base, selection and gutter colors follow each theme."""
         self.assertEqual(
             EDITOR_THEMES["default"].base_style.color.get_truecolor().hex,
             "#ffffff",
@@ -165,15 +166,15 @@ class TestAppMetadata(unittest.TestCase):
         )
         self.assertEqual(
             EDITOR_THEMES["blue"].base_style.bgcolor.get_truecolor().hex,
-            "#0000aa",
+            "#000055",
         )
         self.assertEqual(
             EDITOR_THEMES["blue"].base_style.color.get_truecolor().hex,
-            "#55ffff",
+            "#e8f1ff",
         )
         self.assertEqual(
             EDITOR_THEMES["blue"].gutter_style.color.get_truecolor().hex,
-            "#ffff55",
+            "#8aa9d6",
         )
 
 
@@ -234,7 +235,7 @@ class TestCommandLine(unittest.TestCase):
 
 
 class TestThemeStorage(_IsolatedCacheMixin, unittest.TestCase):
-    """Verify reading and writing the colour-theme preference."""
+    """Verify reading and writing the color-theme preference."""
 
     def test_config_path(self) -> None:
         """The theme is stored in ~/.config/mark_editor/theme.json."""
@@ -897,7 +898,7 @@ class TestTextualApp(_IsolatedCacheMixin, unittest.IsolatedAsyncioTestCase):
             )
 
     async def test_terminal_colors(self) -> None:
-        """Each theme applies its editor, menu and highlight colours."""
+        """Each theme applies its editor, menu and highlight colors."""
         from textual.widgets import OptionList
 
         expected = {
@@ -926,12 +927,12 @@ class TestTextualApp(_IsolatedCacheMixin, unittest.IsolatedAsyncioTestCase):
                 "#aa00aa",
             ),
             "blue": (
-                "#55ffff",
-                "#0000aa",
-                "#00aaaa",
-                "#ffffff",
-                "#ffff55",
-                "#000000",
+                "#e8f1ff",
+                "#000055",
+                "#000055",
+                "#e8f1ff",
+                "#000033",
+                "#d6e6ff",
             ),
         }
         app = await self._make_app()

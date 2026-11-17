@@ -1,4 +1,4 @@
-# Mark Editor TUI 0.1.1 — Keyboard Shortcuts
+# Mark Editor TUI 0.2.0 (2026.11) — Keyboard Shortcuts
 
 The application runs in a terminal. The F1–F12 row follows the classic console-editor layout and is the primary shortcut set. Ctrl and Alt combinations remain available as aliases. The row ends with a clickable Ctrl+P command palette hint. Scroll this page with PageUp/PageDown or the mouse wheel.
 

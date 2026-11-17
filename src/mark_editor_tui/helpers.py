@@ -114,7 +114,7 @@ def cleanup_temp_html(directory: Path) -> None:
 
 @lru_cache(maxsize=1)
 def get_converter() -> MarkdownToHTML:
-    """Return the singleton MarkdownToHTML converter (lazy initialisation)."""
+    """Return the singleton MarkdownToHTML converter (lazy initialization)."""
     return MarkdownToHTML()
 
 

@@ -1,12 +1,12 @@
 # Mark Editor TUI
 
-![](./assets/images/mark_editor_tui_0_1.png "Mark Editor TUI 0.1.1 Screenshot")
+![](./assets/images/mark_editor_tui_0_1.png "Mark Editor TUI 0.2.0 Screenshot")
 
 A terminal Markdown editor written in Python with [Textual](https://textual.textualize.io/). It runs in a reasonably modern terminal on Linux.
 
 Mark Editor TUI is based on [Mark Editor](https://github.com/nobus-1967/mark_editor). HTML and plain-text conversion is provided by [markdown2html5-base](https://github.com/nobus-1967/markdown2html5-base), and PDF export uses [markdown2pdf-base](https://github.com/nobus-1967/markdown2pdf-base).
 
-**Version 0.1.1** (release 2026.11)
+**Version 0.2.0 (2026.11)**
 
 ## Features
 
@@ -20,7 +20,7 @@ Mark Editor TUI is based on [Mark Editor](https://github.com/nobus-1967/mark_edi
 - Tables: create tables with headers, body rows and a footer; add rows; set cell alignment; balance column widths.
 - Table of contents: add, regenerate, remove, or add heading IDs only.
 - Language markers, BCP 47 language-code picker, furigana/ruby annotations, emoji shortcodes and special signs.
-- Four colour themes (`default`, `green`, `magenta`, `blue`) with `File → Toggle Theme` (`Alt+T`), persisted between runs.
+- Four color themes (`default`, `green`, `magenta`, `blue`) with `File → Toggle Theme` (`Alt+T`), persisted between runs.
 - Command palette (`Ctrl+P`) and clickable menus: File, Edit, Format, Paragraph, Help.
 - Built-in help: the complete keyboard-shortcut reference and About.
 
@@ -198,7 +198,7 @@ Other `Ctrl+Shift` combinations (for example `Ctrl+Shift+P`, `Ctrl+Shift+B`, `Ct
 | Action              | Shortcut           |
 | :---                | :---               |
 | Command palette     | `Ctrl+P`           |
-| Toggle colour theme | `Alt+T`            |
+| Toggle color theme | `Alt+T`            |
 | Help                | `F1`               |
 | Menus               | Click a menu title |
 
@@ -209,7 +209,7 @@ Other `Ctrl+Shift` combinations (for example `Ctrl+Shift+P`, `Ctrl+Shift+B`, `Ct
 | default | Black background, white text; active menu items and selections are white with black text. |
 | green   | Like default, but white text and highlights are bright green (`#00ff00`).                 |
 | magenta | Like default, but white text and highlights are dark magenta (`#aa00aa`).                 |
-| blue    | far2l CRT Classic: blue editor, light-cyan text, cyan menus and yellow highlights.        |
+| blue    | Like default, but with a deep-blue background (`#000055`), navy panels and pale-blue text. |
 
 The selected theme is stored in `~/.config/mark_editor/theme.json` under the `mode` key. Delete that file to return to the default theme. The full palette reference is in [themes.md](./themes.md).
 
@@ -240,7 +240,7 @@ application/
       menubar.py        # Clickable menu bar
       markdown_ops.py   # Pure Markdown text transformations
       helpers.py        # Conversion, TOC and temp-file helpers
-      themes.py         # Application and editor colour themes
+      themes.py         # Application and editor color themes
       constants.py      # Version, theme names, formats and language tables
       help_text.py      # Help and About documents
       styles.tcss       # Textual stylesheet

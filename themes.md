@@ -1,220 +1,207 @@
-# Mark Editor TUI — темы оформления
+# Mark Editor TUI — Themes
 
-В редакторе четыре темы: `default`, `green`, `magenta` и `blue`. Порядок
-переключения — `default → green → magenta → blue → default`.
+The editor has four themes: `default`, `green`, `magenta` and `blue`. The switch order is `default → green → magenta → blue → default`.
 
-- **File → Toggle Theme** (последний пункт перед **Quit**) или `Alt+T`
-  переключает тему.
-- Выбранная тема сохраняется в `~/.config/mark_editor/theme.json` в ключе
-  `mode` и восстанавливается при следующем запуске.
-- Удалите этот файл, чтобы вернуться к теме `default`.
+- **File → Toggle Theme** (the last item before **Quit**) or `Alt+T` switches the theme.
+- The selected theme is saved in `~/.config/mark_editor/theme.json` under the `mode` key and restored on the next launch.
+- Delete this file to return to the `default` theme.
 
-Этот документ — справочник для пользователей и GitHub. Он не входит в пакет и
-не используется программой. Исходные палитры находятся в
-`src/mark_editor_tui/themes.py`, раскладка оболочки — в
-`src/mark_editor_tui/styles.tcss`.
+This document is a reference for users and GitHub. It is not included in the package and is not used by the program. The source palettes are in `src/mark_editor_tui/themes.py`, and the shell layout is in `src/mark_editor_tui/styles.tcss`.
 
-## Общие элементы оболочки
+Next to every HEX code, the nearest xterm-256color match is shown in parentheses.
 
-| Элемент | Переменная / свойство |
-| :--- | :--- |
-| Меню-бар и пункты меню | `menu-background`, `menu-foreground` |
-| Наведение и выбранный пункт меню | `menu-active-background`, `menu-active-foreground` |
-| Редактор | `editor-background`, `editor-foreground` |
-| Строка состояния | `status-background`, `status-foreground` |
-| Панель F1–F12 | `keybar-background`; клавиши используют цвета меню |
-| Диалоги | `dialog-background`, `dialog-foreground`, рамка — `accent` |
-| Выпадающий список меню | цвета `menu-*` |
+## Shell elements
 
-Клавиши F1–F12: подпись — `menu-background`/`menu-foreground`, клавиша —
-`menu-active-background`/`menu-active-foreground`.
+| Element                        | Variable / Property                                         |
+| :---                           | :---                                                        |
+| Menu bar and menu items        | `menu-background`, `menu-foreground`                        |
+| Hovered and selected menu item | `menu-active-background`, `menu-active-foreground`          |
+| Editor                         | `editor-background`, `editor-foreground`                    |
+| Status line                    | `status-background`, `status-foreground`                    |
+| F1–F12 key bar                 | `keybar-background`; keys use the menu colors               |
+| Dialogs                        | `dialog-background`, `dialog-foreground`; border — `accent` |
+| Drop-down menu list            | `menu-*` colors                                             |
 
-## 1. default (тёмная)
+F1–F12 keys: the label uses `menu-background`/`menu-foreground`, the key uses `menu-active-background`/`menu-active-foreground`.
 
-Тёмная тема: чёрный фон, белый текст, белые активные элементы.
+## 1. default (dark)
 
-### Палитра приложения
+A dark theme: black background, white text, white active elements.
 
-| Роль | Значение |
-| :--- | :--- |
-| `primary` | `#ffffff` |
-| `secondary` | `#aaaaaa` |
-| `accent` | `#ffffff` |
-| `foreground` | `#ffffff` |
-| `background` | `#000000` |
-| `surface` | `#000000` |
-| `panel` | `#1a1a1a` |
-| `success` | `#00aa00` |
-| `warning` / `error` | `#ff00ff` |
+### Application palette
 
-### Переменные темы
+| Role                | HEX value (xterm-256color index) |
+| :---                | :---                             |
+| `primary`           | `#ffffff` (231)                  |
+| `secondary`         | `#aaaaaa` (248)                  |
+| `accent`            | `#ffffff` (231)                  |
+| `foreground`        | `#ffffff` (231)                  |
+| `background`        | `#000000` (16)                   |
+| `surface`           | `#000000` (16)                   |
+| `panel`             | `#1a1a1a` (234)                  |
+| `success`           | `#00aa00` (34)                   |
+| `warning` / `error` | `#ff00ff` (201)                  |
 
-| Переменная | Значение |
-| :--- | :--- |
-| `menu-background` | `#000000` |
-| `menu-foreground` | `#ffffff` |
-| `menu-active-background` | `#ffffff` |
-| `menu-active-foreground` | `#000000` |
-| `editor-background` | `#000000` |
-| `editor-foreground` | `#ffffff` |
-| `status-background` | `#1a1a1a` |
-| `status-foreground` | `#ffffff` |
-| `keybar-background` | `#1a1a1a` |
-| `dialog-background` | `#1a1a1a` |
-| `dialog-foreground` | `#ffffff` |
+### Theme variables
 
-### Редактор `mark_editor_tui-default`
+| Variable                 | HEX value (xterm-256color index) |
+| :---                     | :---                             |
+| `menu-background`        | `#000000` (16)                   |
+| `menu-foreground`        | `#ffffff` (231)                  |
+| `menu-active-background` | `#ffffff` (231)                  |
+| `menu-active-foreground` | `#000000` (16)                   |
+| `editor-background`      | `#000000` (16)                   |
+| `editor-foreground`      | `#ffffff` (231)                  |
+| `status-background`      | `#1a1a1a` (234)                  |
+| `status-foreground`      | `#ffffff` (231)                  |
+| `keybar-background`      | `#1a1a1a` (234)                  |
+| `dialog-background`      | `#1a1a1a` (234)                  |
+| `dialog-foreground`      | `#ffffff` (231)                  |
 
-| Стиль | Текст | Фон |
-| :--- | :--- | :--- |
-| `base_style` | `#ffffff` | `#000000` |
-| `gutter_style` | `#ffffff` | `#000000` |
-| `cursor_style` | `#000000` | `#ffffff` |
-| `cursor_line_style` | не задан | `#1a1a1a` |
-| `cursor_line_gutter_style` | `#ffffff` | `#1a1a1a` |
-| `selection_style` | `#000000` | `#ffffff` |
+### Editor `mark_editor_tui-default`
+
+| Style                      | Foreground      | Background      |
+| :---                       | :---            | :---            |
+| `base_style`               | `#ffffff` (231) | `#000000` (16)  |
+| `gutter_style`             | `#ffffff` (231) | `#000000` (16)  |
+| `cursor_style`             | `#000000` (16)  | `#ffffff` (231) |
+| `cursor_line_style`        | not set         | `#1a1a1a` (234) |
+| `cursor_line_gutter_style` | `#ffffff` (231) | `#1a1a1a` (234) |
+| `selection_style`          | `#000000` (16)  | `#ffffff` (231) |
 
 ## 2. green
 
-Основана на `default`: все белые элементы заменены ярким зелёным `#00ff00`, а
-инвертированные белые плашки с чёрным текстом — зелёными плашками с чёрным
-текстом. Чёрный фон, серый `secondary` и панель `#1a1a1a` сохраняются.
+Based on `default`: all white elements are replaced with bright green `#00ff00` (46), and inverted white blocks with black text become green blocks with black text. The black background, gray `secondary` and `#1a1a1a` (234) panel are preserved.
 
-### Палитра приложения
+### Application palette
 
-| Роль | Значение |
-| :--- | :--- |
-| `primary` | `#00ff00` |
-| `secondary` | `#00aa00` |
-| `accent` | `#00ff00` |
-| `foreground` | `#00ff00` |
-| `background` | `#000000` |
-| `surface` | `#000000` |
-| `panel` | `#1a1a1a` |
-| `success` | `#00aa00` |
-| `warning` / `error` | `#ffffff` |
+| Role                | HEX value (xterm-256color index) |
+| :---                | :---                             |
+| `primary`           | `#00ff00` (46)                   |
+| `secondary`         | `#00aa00` (34)                   |
+| `accent`            | `#00ff00` (46)                   |
+| `foreground`        | `#00ff00` (46)                   |
+| `background`        | `#000000` (16)                   |
+| `surface`           | `#000000` (16)                   |
+| `panel`             | `#1a1a1a` (234)                  |
+| `success`           | `#00aa00` (34)                   |
+| `warning` / `error` | `#ffffff` (231)                  |
 
-### Переменные темы
+### Theme variables
 
-| Переменная | Значение |
-| :--- | :--- |
-| `menu-background` | `#000000` |
-| `menu-foreground` | `#00ff00` |
-| `menu-active-background` | `#00ff00` |
-| `menu-active-foreground` | `#000000` |
-| `editor-background` | `#000000` |
-| `editor-foreground` | `#00ff00` |
-| `status-background` | `#1a1a1a` |
-| `status-foreground` | `#00ff00` |
-| `keybar-background` | `#1a1a1a` |
-| `dialog-background` | `#1a1a1a` |
-| `dialog-foreground` | `#00ff00` |
+| Variable                 | HEX value (xterm-256color index) |
+| :---                     | :---                             |
+| `menu-background`        | `#000000` (16)                   |
+| `menu-foreground`        | `#00ff00` (46)                   |
+| `menu-active-background` | `#00ff00` (46)                   |
+| `menu-active-foreground` | `#000000` (16)                   |
+| `editor-background`      | `#000000` (16)                   |
+| `editor-foreground`      | `#00ff00` (46)                   |
+| `status-background`      | `#1a1a1a` (234)                  |
+| `status-foreground`      | `#00ff00` (46)                   |
+| `keybar-background`      | `#1a1a1a` (234)                  |
+| `dialog-background`      | `#1a1a1a` (234)                  |
+| `dialog-foreground`      | `#00ff00` (46)                   |
 
-### Редактор `mark_editor_tui-green`
+### Editor `mark_editor_tui-green`
 
-| Стиль | Текст | Фон |
-| :--- | :--- | :--- |
-| `base_style` | `#00ff00` | `#000000` |
-| `gutter_style` | `#00ff00` | `#000000` |
-| `cursor_style` | `#000000` | `#00ff00` |
-| `cursor_line_style` | не задан | `#1a1a1a` |
-| `cursor_line_gutter_style` | `#00ff00` | `#1a1a1a` |
-| `selection_style` | `#000000` | `#00ff00` |
+| Style                      | Foreground     | Background      |
+| :---                       | :---           | :---            |
+| `base_style`               | `#00ff00` (46) | `#000000` (16)  |
+| `gutter_style`             | `#00ff00` (46) | `#000000` (16)  |
+| `cursor_style`             | `#000000` (16) | `#00ff00` (46)  |
+| `cursor_line_style`        | not set        | `#1a1a1a` (234) |
+| `cursor_line_gutter_style` | `#00ff00` (46) | `#1a1a1a` (234) |
+| `selection_style`          | `#000000` (16) | `#00ff00` (46)  |
 
 ## 3. magenta
 
-Основана на `default`: все белые элементы заменены тёмным magenta `#aa00aa`, а
-инвертированные белые плашки с чёрным текстом — magenta-плашками с чёрным
-текстом. Чёрный фон, приглушённый `secondary` `#770077` и панель `#1a1a1a`
-сохраняются.
+Based on `default`: all white elements are replaced with dark magenta `#aa00aa` (127), and inverted white blocks with black text become magenta blocks with black text. The black background, muted `secondary` `#770077` (90) and `#1a1a1a` (234) panel are preserved.
 
-### Палитра приложения
+### Application palette
 
-| Роль | Значение |
-| :--- | :--- |
-| `primary` | `#aa00aa` |
-| `secondary` | `#770077` |
-| `accent` | `#aa00aa` |
-| `foreground` | `#aa00aa` |
-| `background` | `#000000` |
-| `surface` | `#000000` |
-| `panel` | `#1a1a1a` |
-| `success` | `#00aa00` |
-| `warning` / `error` | `#aa0000` |
+| Role                | HEX value (xterm-256color index) |
+| :---                | :---                             |
+| `primary`           | `#aa00aa` (127)                  |
+| `secondary`         | `#770077` (90)                   |
+| `accent`            | `#aa00aa` (127)                  |
+| `foreground`        | `#aa00aa` (127)                  |
+| `background`        | `#000000` (16)                   |
+| `surface`           | `#000000` (16)                   |
+| `panel`             | `#1a1a1a` (234)                  |
+| `success`           | `#00aa00` (34)                   |
+| `warning` / `error` | `#aa0000` (124)                  |
 
-### Переменные темы
+### Theme variables
 
-| Переменная | Значение |
-| :--- | :--- |
-| `menu-background` | `#000000` |
-| `menu-foreground` | `#aa00aa` |
-| `menu-active-background` | `#aa00aa` |
-| `menu-active-foreground` | `#000000` |
-| `editor-background` | `#000000` |
-| `editor-foreground` | `#aa00aa` |
-| `status-background` | `#1a1a1a` |
-| `status-foreground` | `#aa00aa` |
-| `keybar-background` | `#1a1a1a` |
-| `dialog-background` | `#1a1a1a` |
-| `dialog-foreground` | `#aa00aa` |
+| Variable                 | HEX value (xterm-256color index) |
+| :---                     | :---                             |
+| `menu-background`        | `#000000` (16)                   |
+| `menu-foreground`        | `#aa00aa` (127)                  |
+| `menu-active-background` | `#aa00aa` (127)                  |
+| `menu-active-foreground` | `#000000` (16)                   |
+| `editor-background`      | `#000000` (16)                   |
+| `editor-foreground`      | `#aa00aa` (127)                  |
+| `status-background`      | `#1a1a1a` (234)                  |
+| `status-foreground`      | `#aa00aa` (127)                  |
+| `keybar-background`      | `#1a1a1a` (234)                  |
+| `dialog-background`      | `#1a1a1a` (234)                  |
+| `dialog-foreground`      | `#aa00aa` (127)                  |
 
-### Редактор `mark_editor_tui-magenta`
+### Editor `mark_editor_tui-magenta`
 
-| Стиль | Текст | Фон |
-| :--- | :--- | :--- |
-| `base_style` | `#aa00aa` | `#000000` |
-| `gutter_style` | `#aa00aa` | `#000000` |
-| `cursor_style` | `#000000` | `#aa00aa` |
-| `cursor_line_style` | не задан | `#1a1a1a` |
-| `cursor_line_gutter_style` | `#aa00aa` | `#1a1a1a` |
-| `selection_style` | `#000000` | `#aa00aa` |
+| Style                      | Foreground      | Background      |
+| :---                       | :---            | :---            |
+| `base_style`               | `#aa00aa` (127) | `#000000` (16)  |
+| `gutter_style`             | `#aa00aa` (127) | `#000000` (16)  |
+| `cursor_style`             | `#000000` (16)  | `#aa00aa` (127) |
+| `cursor_line_style`        | not set         | `#1a1a1a` (234) |
+| `cursor_line_gutter_style` | `#aa00aa` (127) | `#1a1a1a` (234) |
+| `selection_style`          | `#000000` (16)  | `#aa00aa` (127) |
 
-## 4. blue (CRT Classic)
+## 4. blue
 
-Палитра **CRT Classic** (стандартный вид Midnight Commander):
-синий редактор, светло-голубой текст, голубые меню, жёлтые выделения и серые
-диалоги.
+The **blue** theme is based on `default`: the same roles and contrast, but the neutral surfaces are replaced with deep blue and the text with light blue. The editor and menu background is `#000055` (18), panels and dialogs are `#00106b` (19), and active elements are `#d6e6ff` (189) with dark blue text.
 
-### Палитра приложения
+### Application palette
 
-| Роль | Значение |
-| :--- | :--- |
-| `primary` | `#55ffff` |
-| `secondary` | `#aaaaaa` |
-| `accent` | `#ffff55` |
-| `foreground` | `#55ffff` |
-| `background` | `#0000aa` |
-| `surface` | `#0000aa` |
-| `panel` | `#00aaaa` |
-| `success` | `#00ff00` |
-| `warning` / `error` | `#ff00ff` |
+| Role                | HEX value (xterm-256color index) |
+| :---                | :---                             |
+| `primary`           | `#d6e6ff` (189)                  |
+| `secondary`         | `#8aa9d6` (110)                  |
+| `accent`            | `#d6e6ff` (189)                  |
+| `foreground`        | `#e8f1ff` (255)                  |
+| `background`        | `#000055` (18)                   |
+| `surface`           | `#000055` (18)                   |
+| `panel`             | `#00106b` (19)                   |
+| `success`           | `#00ff00` (46)                   |
+| `warning` / `error` | `#ff00ff` (201)                  |
 
-### Переменные темы
+### Theme variables
 
-| Переменная | Значение |
-| :--- | :--- |
-| `menu-background` | `#00aaaa` |
-| `menu-foreground` | `#ffffff` |
-| `menu-active-background` | `#000000` |
-| `menu-active-foreground` | `#ffff55` |
-| `editor-background` | `#0000aa` |
-| `editor-foreground` | `#55ffff` |
-| `status-background` | `#00aaaa` |
-| `status-foreground` | `#000000` |
-| `keybar-background` | `#000000` |
-| `dialog-background` | `#aaaaaa` |
-| `dialog-foreground` | `#000000` |
+| Variable                 | HEX value (xterm-256color index) |
+| :---                     | :---                             |
+| `menu-background`        | `#000055` (18)                   |
+| `menu-foreground`        | `#e8f1ff` (255)                  |
+| `menu-active-background` | `#d6e6ff` (189)                  |
+| `menu-active-foreground` | `#000033` (17)                   |
+| `editor-background`      | `#000055` (18)                   |
+| `editor-foreground`      | `#e8f1ff` (255)                  |
+| `status-background`      | `#00106b` (19)                   |
+| `status-foreground`      | `#e8f1ff` (255)                  |
+| `keybar-background`      | `#00106b` (19)                   |
+| `dialog-background`      | `#00106b` (19)                   |
+| `dialog-foreground`      | `#e8f1ff` (255)                  |
 
-### Редактор `mark_editor_tui-blue`
+### Editor `mark_editor_tui-blue`
 
-| Стиль | Текст | Фон |
-| :--- | :--- | :--- |
-| `base_style` | `#55ffff` | `#0000aa` |
-| `gutter_style` | `#ffff55` | `#0000aa` |
-| `cursor_style` | `#000000` | `#00aaaa` |
-| `cursor_line_style` | не задан | `#000080` |
-| `cursor_line_gutter_style` | `#ffff55` | `#000080` |
-| `selection_style` | `#000000` | `#00aaaa` |
+| Style                      | Foreground      | Background      |
+| :---                       | :---            | :---            |
+| `base_style`               | `#e8f1ff` (255) | `#000055` (18)  |
+| `gutter_style`             | `#8aa9d6` (110) | `#000055` (18)  |
+| `cursor_style`             | `#000033` (17)  | `#d6e6ff` (189) |
+| `cursor_line_style`        | not set         | `#00106b` (19)  |
+| `cursor_line_gutter_style` | `#8aa9d6` (110) | `#00106b` (19)  |
+| `selection_style`          | `#000033` (17)  | `#d6e6ff` (189) |
 
-В темах `default` и `blue` предупреждения и ошибки — magenta (`#ff00ff`), в
-теме `green` — white (`#ffffff`), в теме `magenta` — dark red (`#aa0000`).
+In the `default` and `blue` themes, warnings and errors are magenta `#ff00ff` (201); in the `green` and `magenta` themes they are white `#ffffff` (231).
