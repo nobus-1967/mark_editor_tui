@@ -1,9 +1,11 @@
-"""Textual application for Mark Editor TUI 0.2.0."""
+"""Textual application for Mark Editor TUI 0.2.1."""
 
 from __future__ import annotations
 
+import asyncio
 import contextlib
 import re
+import signal
 from collections.abc import Callable
 from datetime import datetime
 from pathlib import Path
@@ -353,6 +355,7 @@ class MarkEditorApp(App[None]):
 
     def on_mount(self) -> None:
         """Apply the saved theme, restore a session or open the initial file."""
+        self._install_signal_handlers()
         self._apply_theme(self.theme_mode)
         self.editor.focus()
         if self.initial_file is not None:
@@ -361,6 +364,24 @@ class MarkEditorApp(App[None]):
             self._restore_pending_text()
         self._update_title()
         self._update_status()
+
+    def _install_signal_handlers(self) -> None:
+        """Clean temporary files on terminal hangup or termination signals."""
+        try:
+            loop = asyncio.get_running_loop()
+        except RuntimeError:
+            return
+        for sig_name in ("SIGHUP", "SIGTERM"):
+            sig = getattr(signal, sig_name, None)
+            if sig is None:
+                continue
+            with contextlib.suppress(NotImplementedError, RuntimeError, ValueError):
+                loop.add_signal_handler(sig, self._handle_exit_signal, sig)
+
+    def _handle_exit_signal(self, signum: int) -> None:
+        """Remove temporary files and exit after a termination signal."""
+        self._cleanup_temp_files()
+        self.exit()
 
     def check_action(self, action: str, _parameters: tuple[object, ...]) -> bool:
         """Disable editor shortcuts while a modal dialog is open.
@@ -468,8 +489,9 @@ class MarkEditorApp(App[None]):
         self._load_text(text)
         self.current_file = path
         self.is_modified = False
-        if old_file is not None and old_file.parent != path.parent:
+        if old_file is not None:
             cleanup_temp_md(old_file.parent)
+            cleanup_temp_html(old_file.parent)
         self._update_title()
         self._update_status()
         self.editor.focus()
@@ -480,6 +502,8 @@ class MarkEditorApp(App[None]):
         path = path.expanduser()
         if not path.suffix:
             path = path.with_suffix(".md")
+        path = path.resolve()
+        old_file = self.current_file
         try:
             path.parent.mkdir(parents=True, exist_ok=True)
             path.write_text(self.editor.text, encoding="utf-8")
@@ -488,6 +512,9 @@ class MarkEditorApp(App[None]):
                 f"Cannot save {path}: {exc}", title="Save file", severity="error"
             )
             return
+        if old_file is not None and old_file.resolve() != path:
+            cleanup_temp_md(old_file.parent)
+            cleanup_temp_html(old_file.parent)
         self.current_file = path
         self.is_modified = False
         self._update_title()
@@ -526,6 +553,7 @@ class MarkEditorApp(App[None]):
         self.is_modified = False
         if old_file is not None:
             cleanup_temp_md(old_file.parent)
+            cleanup_temp_html(old_file.parent)
         self._update_title()
         self._update_status()
         self.editor.focus()

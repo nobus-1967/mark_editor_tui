@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Tests for Mark Editor TUI 0.2.0."""
+"""Tests for Mark Editor TUI 0.2.1."""
 
 from __future__ import annotations
 
@@ -72,8 +72,8 @@ class TestAppMetadata(unittest.TestCase):
         self.assertEqual(APP_NAME, "Mark Editor TUI")
 
     def test_version(self) -> None:
-        """The application version is 0.2.0."""
-        self.assertEqual(VERSION, "0.2.0")
+        """The application version is 0.2.1."""
+        self.assertEqual(VERSION, "0.2.1")
 
     def test_release(self) -> None:
         """The release identifier is present."""
@@ -88,9 +88,9 @@ class TestAppMetadata(unittest.TestCase):
         self.assertEqual(len({theme.name for theme in EDITOR_THEMES.values()}), 4)
         expected_alerts = {
             "default": "#ff00ff",
-            "green": "#ffffff",
-            "magenta": "#aa0000",
-            "blue": "#ff00ff",
+            "green": "#870000",
+            "magenta": "#87005f",
+            "blue": "#af0087",
         }
         for name, theme in APP_THEMES.items():
             self.assertEqual(theme.name, f"mark-{name}")
@@ -112,31 +112,31 @@ class TestAppMetadata(unittest.TestCase):
         green = APP_THEMES["green"]
         self.assertEqual(green.background, "#000000")
         self.assertEqual(green.foreground, "#00ff00")
-        self.assertEqual(green.secondary, "#00aa00")
+        self.assertEqual(green.secondary, "#00af00")
         self.assertEqual(green.variables["menu-foreground"], "#00ff00")
         self.assertEqual(green.variables["menu-active-background"], "#00ff00")
         self.assertEqual(green.variables["menu-active-foreground"], "#000000")
 
         magenta = APP_THEMES["magenta"]
         self.assertEqual(magenta.background, "#000000")
-        self.assertEqual(magenta.foreground, "#aa00aa")
-        self.assertEqual(magenta.secondary, "#770077")
-        self.assertEqual(magenta.variables["menu-foreground"], "#aa00aa")
-        self.assertEqual(magenta.variables["menu-active-background"], "#aa00aa")
+        self.assertEqual(magenta.foreground, "#af00af")
+        self.assertEqual(magenta.secondary, "#800080")
+        self.assertEqual(magenta.variables["menu-foreground"], "#af00af")
+        self.assertEqual(magenta.variables["menu-active-background"], "#af00af")
         self.assertEqual(magenta.variables["menu-active-foreground"], "#000000")
 
         blue = APP_THEMES["blue"]
-        self.assertEqual(blue.background, "#000055")
-        self.assertEqual(blue.foreground, "#e8f1ff")
-        self.assertEqual(blue.secondary, "#8aa9d6")
-        self.assertEqual(blue.success, "#00ff00")
-        self.assertEqual(blue.variables["menu-background"], "#000055")
-        self.assertEqual(blue.variables["menu-foreground"], "#e8f1ff")
-        self.assertEqual(blue.variables["menu-active-foreground"], "#000033")
-        self.assertEqual(blue.variables["editor-background"], "#000055")
-        self.assertEqual(blue.variables["editor-foreground"], "#e8f1ff")
-        self.assertEqual(blue.variables["status-background"], "#00106b")
-        self.assertEqual(blue.variables["status-foreground"], "#e8f1ff")
+        self.assertEqual(blue.background, "#000087")
+        self.assertEqual(blue.foreground, "#eeeeee")
+        self.assertEqual(blue.secondary, "#87afd7")
+        self.assertEqual(blue.success, "#87afd7")
+        self.assertEqual(blue.variables["menu-background"], "#000087")
+        self.assertEqual(blue.variables["menu-foreground"], "#eeeeee")
+        self.assertEqual(blue.variables["menu-active-foreground"], "#00005f")
+        self.assertEqual(blue.variables["editor-background"], "#000087")
+        self.assertEqual(blue.variables["editor-foreground"], "#eeeeee")
+        self.assertEqual(blue.variables["status-background"], "#0000af")
+        self.assertEqual(blue.variables["status-foreground"], "#eeeeee")
 
     def test_editor_palettes(self) -> None:
         """Editor base, selection and gutter colors follow each theme."""
@@ -158,23 +158,23 @@ class TestAppMetadata(unittest.TestCase):
         )
         self.assertEqual(
             EDITOR_THEMES["magenta"].base_style.color.get_truecolor().hex,
-            "#aa00aa",
+            "#af00af",
         )
         self.assertEqual(
             EDITOR_THEMES["magenta"].selection_style.bgcolor.get_truecolor().hex,
-            "#aa00aa",
+            "#af00af",
         )
         self.assertEqual(
             EDITOR_THEMES["blue"].base_style.bgcolor.get_truecolor().hex,
-            "#000055",
+            "#000087",
         )
         self.assertEqual(
             EDITOR_THEMES["blue"].base_style.color.get_truecolor().hex,
-            "#e8f1ff",
+            "#eeeeee",
         )
         self.assertEqual(
             EDITOR_THEMES["blue"].gutter_style.color.get_truecolor().hex,
-            "#8aa9d6",
+            "#87afd7",
         )
 
 
@@ -675,6 +675,7 @@ class TestHelpText(unittest.TestCase):
             "Alt+Enter",
             "Alt+1",
             "Ctrl+_",
+            "Esc",
         ):
             self.assertIn(shortcut, text)
         for obsolete in (
@@ -919,20 +920,20 @@ class TestTextualApp(_IsolatedCacheMixin, unittest.IsolatedAsyncioTestCase):
                 "#00ff00",
             ),
             "magenta": (
-                "#aa00aa",
+                "#af00af",
                 "#000000",
                 "#000000",
-                "#aa00aa",
+                "#af00af",
                 "#000000",
-                "#aa00aa",
+                "#af00af",
             ),
             "blue": (
-                "#e8f1ff",
-                "#000055",
-                "#000055",
-                "#e8f1ff",
-                "#000033",
-                "#d6e6ff",
+                "#eeeeee",
+                "#000087",
+                "#000087",
+                "#eeeeee",
+                "#00005f",
+                "#d7d7ff",
             ),
         }
         app = await self._make_app()

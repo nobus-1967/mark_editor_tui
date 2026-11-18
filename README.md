@@ -1,12 +1,12 @@
 # Mark Editor TUI
 
-![](./assets/images/mark_editor_tui_0_1.png "Mark Editor TUI 0.2.0 Screenshot")
+![](./assets/images/mark_editor_tui_0_2.png "Mark Editor TUI 0.2.1 Screenshot")
 
 A terminal Markdown editor written in Python with [Textual](https://textual.textualize.io/). It runs in a reasonably modern terminal on Linux.
 
 Mark Editor TUI is based on [Mark Editor](https://github.com/nobus-1967/mark_editor). HTML and plain-text conversion is provided by [markdown2html5-base](https://github.com/nobus-1967/markdown2html5-base), and PDF export uses [markdown2pdf-base](https://github.com/nobus-1967/markdown2pdf-base).
 
-**Version 0.2.0 (2026.11)**
+**Actual version is 0.2.1 (2026.11).**
 
 ## Features
 
@@ -44,8 +44,7 @@ python3 -m venv ../venv
 ../venv/bin/python -m pip install -e .
 ```
 
-`pip install -e .` installs the `mark_editor_tui` command and the dependencies
-declared in `pyproject.toml`.
+`pip install -e .` installs the `mark_editor_tui` command and the dependencies declared in `pyproject.toml`.
 
 For the development tools as well:
 
@@ -70,9 +69,9 @@ The optional `FILE` argument opens a Markdown document at startup.
 
 Command-line options:
 
-| Option | Description |
-| :--- | :--- |
-| `-h`, `--help` | Show a brief description of the program and its options. |
+| Option            | Description                                                 |
+| :---              | :---                                                        |
+| `-h`, `--help`    | Show a brief description of the program and its options.    |
 | `-v`, `--version` | Print the application name, version and release, then exit. |
 
 ## Function-key layout
@@ -92,34 +91,34 @@ The F1–F12 row follows the classic console-editor layout and is the primary sh
 
 Desktop editors use several key combinations that a terminal cannot deliver or that a shell reserves for itself. Mark Editor TUI moves those actions to function keys or Alt combinations:
 
-| Action            | Primary shortcut      | Why it changed                                               |
-| :---              | :---                  | :---                                                         |
-| Undo              | `F11`                 | `Ctrl+Z` sends `SIGTSTP` in many shells.                     |
-| Redo              | `F12`                 | Keeps Undo and Redo on the function-key row.                 |
-| Quit              | `F10`                 | `Ctrl+Q` is flow control; `Ctrl+Shift+Q` closes a window.    |
-| Save              | `F2`                  | Some terminals intercept `Ctrl+S`.                           |
-| Copy              | `F8`                  | `Ctrl+Shift+C` belongs to the terminal emulator.             |
-| Paste             | `F9`                  | Terminal paste is normally `Ctrl+Shift+V` or `Shift+Insert`. |
-| Select all        | `F6`                  | `Ctrl+A` moves to the beginning of the line in terminals.    |
-| Find              | `F4`                  | `Ctrl+Shift+F` is terminal search.                           |
-| Replace           | `F5`                  | `Ctrl+Shift+H` may be terminal replace.                      |
-| Cut               | `F7`                  | `Ctrl+Shift+X` may be terminal cut.                          |
-| Delete line       | `Alt+D`               | No terminal-reserved function key remains free.              |
-| Language wrapping | `Alt+Shift+W`         | `Ctrl+Shift+W` closes a terminal tab.                        |
-| Unordered list    | `Ctrl+Shift+G`        | Does not conflict with common terminal shortcuts.            |
-| Code block        | `Alt+Shift+K`         | `Ctrl+Shift+K` clears the terminal scrollback.               |
-| Table alignment   | `Alt+Shift+T`         | `Ctrl+Shift+T` opens a terminal tab.                         |
-| Balance table     | `Alt+Shift+N`         | `Ctrl+Shift+N` opens a terminal window.                      |
-| Clear formatting  | `Alt+Shift+F`         | `Ctrl+Shift+F` is terminal search.                           |
-| Italic            | `Alt+I`               | `Ctrl+I` is the same byte as Tab.                            |
-| Comment           | `Alt+M`               | `Ctrl+M` is the same byte as Enter.                          |
-| Line break        | `Alt+Enter`           | `Ctrl+\` sends `SIGQUIT`.                                    |
+| Action            | Primary shortcut      | Why it changed                                                  |
+| :---              | :---                  | :---                                                            |
+| Undo              | `F11`                 | `Ctrl+Z` sends `SIGTSTP` in many shells.                        |
+| Redo              | `F12`                 | Keeps Undo and Redo on the function-key row.                    |
+| Quit              | `F10`                 | `Ctrl+Q` is flow control; `Ctrl+Shift+Q` closes a window.       |
+| Save              | `F2`                  | Some terminals intercept `Ctrl+S`.                              |
+| Copy              | `F8`                  | `Ctrl+Shift+C` belongs to the terminal emulator.                |
+| Paste             | `F9`                  | Terminal paste is normally `Ctrl+Shift+V` or `Shift+Insert`.    |
+| Select all        | `F6`                  | `Ctrl+A` moves to the beginning of the line in terminals.       |
+| Find              | `F4`                  | `Ctrl+Shift+F` is terminal search.                              |
+| Replace           | `F5`                  | `Ctrl+Shift+H` may be terminal replace.                         |
+| Cut               | `F7`                  | `Ctrl+Shift+X` may be terminal cut.                             |
+| Delete line       | `Alt+D`               | No terminal-reserved function key remains free.                 |
+| Language wrapping | `Alt+Shift+W`         | `Ctrl+Shift+W` closes a terminal tab.                           |
+| Unordered list    | `Ctrl+Shift+G`        | Does not conflict with common terminal shortcuts.               |
+| Code block        | `Alt+Shift+K`         | `Ctrl+Shift+K` clears the terminal scrollback.                  |
+| Table alignment   | `Alt+Shift+T`         | `Ctrl+Shift+T` opens a terminal tab.                            |
+| Balance table     | `Alt+Shift+N`         | `Ctrl+Shift+N` opens a terminal window.                         |
+| Clear formatting  | `Alt+Shift+F`         | `Ctrl+Shift+F` is terminal search.                              |
+| Italic            | `Alt+I`               | `Ctrl+I` is the same byte as Tab.                               |
+| Comment           | `Alt+M`               | `Ctrl+M` is the same byte as Enter.                             |
+| Line break        | `Alt+Enter`           | `Ctrl+\` sends `SIGQUIT`.                                       |
 | Headings 1–6      | `Alt+1` … `Alt+6`     | GNOME Terminal sends `ESC`+digit; the app restores `Alt`+digit. |
-| Paragraph         | `Alt+0`               | —                                                            |
-| Blockquote        | `Alt+Q`               | `Ctrl+Shift+Q` closes a window in some terminals.            |
-| Todo list         | `Alt+C`               | `Ctrl+Shift+C` is terminal copy.                             |
-| Header ID         | `Alt+H`               | `Ctrl+H` is Backspace.                                       |
-| Line up/down      | `Alt+Up` / `Alt+Down` | `Ctrl+Up/Down` usually scrolls the terminal.                 |
+| Paragraph         | `Alt+0`               | —                                                               |
+| Blockquote        | `Alt+Q`               | `Ctrl+Shift+Q` closes a window in some terminals.               |
+| Todo list         | `Alt+C`               | `Ctrl+Shift+C` is terminal copy.                                |
+| Header ID         | `Alt+H`               | `Ctrl+H` is Backspace.                                          |
+| Line up/down      | `Alt+Up` / `Alt+Down` | `Ctrl+Up/Down` usually scrolls the terminal.                    |
 
 Other `Ctrl+Shift` combinations (for example `Ctrl+Shift+P`, `Ctrl+Shift+B`, `Ctrl+Shift+M`) are kept because common terminals do not reserve them. Press `F1` or open **Help → Keyboard Shortcuts** for the complete shortcut list.
 
@@ -198,7 +197,7 @@ Other `Ctrl+Shift` combinations (for example `Ctrl+Shift+P`, `Ctrl+Shift+B`, `Ct
 | Action              | Shortcut           |
 | :---                | :---               |
 | Command palette     | `Ctrl+P`           |
-| Toggle color theme | `Alt+T`            |
+| Toggle color theme  | `Alt+T`            |
 | Help                | `F1`               |
 | Menus               | Click a menu title |
 
@@ -207,9 +206,9 @@ Other `Ctrl+Shift` combinations (for example `Ctrl+Shift+P`, `Ctrl+Shift+B`, `Ct
 | Theme   | Appearance                                                                                |
 | :---    | :---                                                                                      |
 | default | Black background, white text; active menu items and selections are white with black text. |
-| green   | Like default, but white text and highlights are bright green (`#00ff00`).                 |
-| magenta | Like default, but white text and highlights are dark magenta (`#aa00aa`).                 |
-| blue    | Like default, but with a deep-blue background (`#000055`), navy panels and pale-blue text. |
+| green   | Like default, but white text and highlights are bright green.                             |
+| magenta | Like default, but white text and highlights are magenta.                                  |
+| blue    | Like default, but with a deep-blue background, navy panels and pale-blue text.            |
 
 The selected theme is stored in `~/.config/mark_editor/theme.json` under the `mode` key. Delete that file to return to the default theme. The full palette reference is in [themes.md](./themes.md).
 
@@ -250,8 +249,7 @@ application/
 
 ## Temporary files
 
-While editing, the buffer is saved to a tilde file so that a crashed or
-terminated session can be restored:
+While editing, the buffer is saved to a tilde file so that a crashed or terminated session can be restored:
 
 - No file open: `~/.cache/mark_editor_tui/Temp.md`.
 - File open: `~/<name>.md` next to the document.

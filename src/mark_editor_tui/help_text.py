@@ -125,6 +125,7 @@ palette hint. Scroll this page with PageUp/PageDown or the mouse wheel.
 | :--- | :--- |
 | Command palette | Ctrl+P |
 | Menus | Mouse click |
+| Close menu or command palette | Esc |
 
 The standard font is Noto Sans Mono; PDF export uses Noto Sans Mono together
 with the Noto Sans Mono CJK variants and Symbola for symbols and checkboxes. The

@@ -1,4 +1,4 @@
-# Mark Editor TUI 0.2.0 (2026.11) — Keyboard Shortcuts
+# Mark Editor TUI 0.2.1 (2026.11) — Keyboard Shortcuts
 
 The application runs in a terminal. The F1–F12 row follows the classic console-editor layout and is the primary shortcut set. Ctrl and Alt combinations remain available as aliases. The row ends with a clickable Ctrl+P command palette hint. Scroll this page with PageUp/PageDown or the mouse wheel.
 
@@ -104,9 +104,10 @@ The application runs in a terminal. The F1–F12 row follows the classic console
 
 ### Command palette
 
-| Action          | Shortcut    |
-| :---            | :---        |
-| Command palette | Ctrl+P      |
-| Menus           | Mouse click |
+| Action                        | Shortcut    |
+| :---                          | :---        |
+| Command palette               | Ctrl+P      |
+| Menus                         | Mouse click |
+| Close menu or command palette | Esc         |
 
 The standard font is Noto Sans Mono; PDF export uses Noto Sans Mono together with the Noto Sans Mono CJK variants and Symbola for symbols and checkboxes. The terminal emulator controls the actual font family and rendering size.
