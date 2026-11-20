@@ -1,4 +1,4 @@
-"""Textual application for Mark Editor TUI 0.2.1."""
+"""Textual application for Mark Editor TUI 0.2.2."""
 
 from __future__ import annotations
 

@@ -28,7 +28,7 @@ from mark_editor_tui.constants import (
 
 
 def _read_config() -> dict:
-    """Read ~/.config/mark_editor/theme.json (empty on any error)."""
+    """Read ~/.config/mark_editor_tui/theme.json (empty on any error)."""
     try:
         return json.loads(THEME_FILE.read_text(encoding="utf-8"))
     except Exception:

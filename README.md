@@ -1,12 +1,12 @@
 # Mark Editor TUI
 
-![](./assets/images/mark_editor_tui_0_2.png "Mark Editor TUI 0.2.1 Screenshot")
+![](./assets/images/mark_editor_tui_0_2.png "Mark Editor TUI 0.2.2 Screenshot")
 
 A terminal Markdown editor written in Python with [Textual](https://textual.textualize.io/). It runs in a reasonably modern terminal on Linux.
 
 Mark Editor TUI is based on [Mark Editor](https://github.com/nobus-1967/mark_editor). HTML and plain-text conversion is provided by [markdown2html5-base](https://github.com/nobus-1967/markdown2html5-base), and PDF export uses [markdown2pdf-base](https://github.com/nobus-1967/markdown2pdf-base).
 
-**Actual version is 0.2.1 (2026.11).**
+**Actual version is 0.2.2 (2026.11).**
 
 ## Features
 
@@ -210,7 +210,7 @@ Other `Ctrl+Shift` combinations (for example `Ctrl+Shift+P`, `Ctrl+Shift+B`, `Ct
 | magenta | Like default, but white text and highlights are magenta.                                  |
 | blue    | Like default, but with a deep-blue background, navy panels and pale-blue text.            |
 
-The selected theme is stored in `~/.config/mark_editor/theme.json` under the `mode` key. Delete that file to return to the default theme. The full palette reference is in [themes.md](./themes.md).
+The selected theme is stored in `~/.config/mark_editor_tui/theme.json` under the `mode` key. Delete that file to return to the default theme. The full palette reference is in [themes.md](./themes.md).
 
 The recommended font is Noto Sans Mono; PDF export uses Noto Sans Mono together with the Noto Sans Mono CJK variants and Symbola for symbols and checkboxes. The terminal emulator controls the actual font family and rendering size; font selection is not available inside the TUI.
 

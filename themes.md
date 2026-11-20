@@ -3,7 +3,7 @@
 The editor has four themes: `default`, `green`, `magenta` and `blue`. The switch order is `default → green → magenta → blue → default`.
 
 - **File → Toggle Theme** (the last item before **Quit**) or `Alt+T` switches the theme.
-- The selected theme is saved in `~/.config/mark_editor/theme.json` under the `mode` key and restored on the next launch.
+- The selected theme is saved in `~/.config/mark_editor_tui/theme.json` under the `mode` key and restored on the next launch.
 - Delete this file to return to the `default` theme.
 
 This document is a reference for users and GitHub. It is not included in the package and is not used by the program. The source palettes are in `src/mark_editor_tui/themes.py`, and the shell layout is in `src/mark_editor_tui/styles.tcss`.

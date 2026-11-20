@@ -5,10 +5,10 @@ from __future__ import annotations
 from pathlib import Path
 
 APP_NAME = "Mark Editor TUI"
-VERSION = "0.2.1"
+VERSION = "0.2.2"
 RELEASE = "2026.11"
 
-CONFIG_DIR = Path.home() / ".config" / "mark_editor"
+CONFIG_DIR = Path.home() / ".config" / "mark_editor_tui"
 THEME_FILE = CONFIG_DIR / "theme.json"
 
 CACHE_DIR = Path.home() / ".cache" / "mark_editor_tui"

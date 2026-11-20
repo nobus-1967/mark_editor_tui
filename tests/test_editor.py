@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Tests for Mark Editor TUI 0.2.1."""
+"""Tests for Mark Editor TUI 0.2.2."""
 
 from __future__ import annotations
 
@@ -72,8 +72,8 @@ class TestAppMetadata(unittest.TestCase):
         self.assertEqual(APP_NAME, "Mark Editor TUI")
 
     def test_version(self) -> None:
-        """The application version is 0.2.1."""
-        self.assertEqual(VERSION, "0.2.1")
+        """The application version is 0.2.2."""
+        self.assertEqual(VERSION, "0.2.2")
 
     def test_release(self) -> None:
         """The release identifier is present."""
@@ -238,8 +238,8 @@ class TestThemeStorage(_IsolatedCacheMixin, unittest.TestCase):
     """Verify reading and writing the color-theme preference."""
 
     def test_config_path(self) -> None:
-        """The theme is stored in ~/.config/mark_editor/theme.json."""
-        self.assertEqual(CONFIG_DIR, Path.home() / ".config" / "mark_editor")
+        """The theme is stored in ~/.config/mark_editor_tui/theme.json."""
+        self.assertEqual(CONFIG_DIR, Path.home() / ".config" / "mark_editor_tui")
         self.assertEqual(THEME_FILE, CONFIG_DIR / "theme.json")
 
     def test_default_theme(self) -> None:
