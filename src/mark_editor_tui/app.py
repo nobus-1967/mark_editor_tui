@@ -1,4 +1,4 @@
-"""Textual application for Mark Editor TUI 0.2.2."""
+"""Textual application for Mark Editor TUI 0.3.0."""
 
 from __future__ import annotations
 
@@ -40,6 +40,7 @@ from mark_editor_tui.helpers import (
     add_toc,
     cleanup_temp_html,
     cleanup_temp_md,
+    clear_pending_text,
     ensure_cache_dir,
     load_temp_md,
     load_theme,
@@ -63,6 +64,13 @@ from mark_editor_tui.screens import (
     ReplaceScreen,
 )
 from mark_editor_tui.themes import APP_THEMES, EDITOR_THEMES
+
+
+def _file_signature(path: Path) -> tuple[int, int]:
+    """Return the modification time and size used to detect disk changes."""
+    stat = path.stat()
+    return stat.st_mtime_ns, stat.st_size
+
 
 Command = tuple[str, Callable[[], Any], str]
 
@@ -309,8 +317,12 @@ class MarkEditorApp(App[None]):
     )
 
     EXPORT_COMMANDS: tuple[tuple[str, str, str], ...] = (
-        ("Export: HTML5", "html", "HTML5 without embedded CSS"),
-        ("Export: HTML5 + CSS", "html_css", "HTML5 with embedded CSS3"),
+        ("Export: HTML5 (portrait)", "html", "HTML5 in portrait orientation"),
+        (
+            "Export: HTML5 (landscape)",
+            "html_landscape",
+            "HTML5 in landscape orientation",
+        ),
         ("Export: PDF (portrait)", "pdf", "PDF in portrait orientation"),
         ("Export: PDF (landscape)", "pdf_landscape", "PDF in landscape orientation"),
         ("Export: Plain text", "text", "Plain text without Markdown syntax"),
@@ -327,6 +339,8 @@ class MarkEditorApp(App[None]):
         self.is_modified = False
         self.theme_mode = load_theme()
         self._suppress_change = 0
+        self._file_signature: tuple[int, int] | None = None
+        self._external_check_timer = None
 
     def get_theme_variable_defaults(self) -> dict[str, str]:
         """Return fallback theme variables used while the stylesheet loads."""
@@ -362,6 +376,7 @@ class MarkEditorApp(App[None]):
             self._open_path(self.initial_file)
         else:
             self._restore_pending_text()
+        self._start_external_check()
         self._update_title()
         self._update_status()
 
@@ -382,6 +397,38 @@ class MarkEditorApp(App[None]):
         """Remove temporary files and exit after a termination signal."""
         self._cleanup_temp_files()
         self.exit()
+
+    def _start_external_check(self) -> None:
+        """Start watching the current file for changes made outside the editor."""
+        if self._external_check_timer is None:
+            self._external_check_timer = self.set_interval(
+                1, self._check_external_change
+            )
+
+    def _stop_external_check(self) -> None:
+        """Stop watching for external file changes."""
+        if self._external_check_timer is not None:
+            self._external_check_timer.stop()
+            self._external_check_timer = None
+
+    def _check_external_change(self) -> None:
+        """Reload the current file when another program changes it on disk."""
+        if self.current_file is None:
+            self._stop_external_check()
+            return
+        try:
+            signature = _file_signature(self.current_file)
+            if signature == self._file_signature:
+                return
+            text = self.current_file.read_text(encoding="utf-8")
+        except OSError:
+            return
+        self._load_text(text)
+        self.is_modified = False
+        self._file_signature = signature
+        self._update_title()
+        self._update_status()
+        self.notify(f"Reloaded {self.current_file.name}")
 
     def check_action(self, action: str, _parameters: tuple[object, ...]) -> bool:
         """Disable editor shortcuts while a modal dialog is open.
@@ -467,13 +514,14 @@ class MarkEditorApp(App[None]):
             self.notify("Restored unsaved text from the previous session")
 
     def _cleanup_temp_files(self) -> None:
-        """Delete the temporary Markdown and HTML files for this document."""
+        """Delete temporary files and the cached unsaved-buffer file."""
         if self.current_file is not None:
             cleanup_temp_md(self.current_file.parent)
             cleanup_temp_html(self.current_file.parent)
         else:
             cleanup_temp_md(ensure_cache_dir())
             cleanup_temp_html(ensure_cache_dir())
+        clear_pending_text()
 
     def _open_path(self, path: Path) -> None:
         """Load *path* into the editor."""
@@ -489,6 +537,8 @@ class MarkEditorApp(App[None]):
         self._load_text(text)
         self.current_file = path
         self.is_modified = False
+        self._file_signature = _file_signature(path)
+        self._start_external_check()
         if old_file is not None:
             cleanup_temp_md(old_file.parent)
             cleanup_temp_html(old_file.parent)
@@ -517,6 +567,8 @@ class MarkEditorApp(App[None]):
             cleanup_temp_html(old_file.parent)
         self.current_file = path
         self.is_modified = False
+        self._file_signature = _file_signature(path)
+        self._start_external_check()
         self._update_title()
         self._update_status()
         self.editor.focus()
@@ -551,6 +603,8 @@ class MarkEditorApp(App[None]):
         self._load_text("")
         self.current_file = None
         self.is_modified = False
+        self._file_signature = None
+        self._stop_external_check()
         if old_file is not None:
             cleanup_temp_md(old_file.parent)
             cleanup_temp_html(old_file.parent)
@@ -597,6 +651,8 @@ class MarkEditorApp(App[None]):
             return
         self._load_text(text)
         self.is_modified = False
+        self._file_signature = _file_signature(self.current_file)
+        self._start_external_check()
         self._update_title()
         self._update_status()
         self.editor.focus()
@@ -663,20 +719,18 @@ class MarkEditorApp(App[None]):
             return
         try:
             content = self.editor.text
-            if key in {"html", "html_css"}:
-                html = md_to_html(content, include_css=key == "html_css")
+            if key in {"html", "html_landscape"}:
+                layout = "landscape" if key == "html_landscape" else "portrait"
+                html = md_to_html(content, page_layout=layout)
                 path.write_text(html, encoding="utf-8")
             elif key == "text":
                 path.write_text(md_to_plain(content), encoding="utf-8")
             elif key in {"pdf", "pdf_landscape"}:
-                source_dir = (
-                    str(self.current_file.parent) if self.current_file else None
-                )
                 layout = "landscape" if key == "pdf_landscape" else "portrait"
                 md_to_pdf(
                     content,
                     str(path),
-                    source_dir=source_dir,
+                    source_file=self.current_file,
                     page_layout=layout,
                 )
             else:

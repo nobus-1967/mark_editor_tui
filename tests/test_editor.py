@@ -1,26 +1,30 @@
 #!/usr/bin/env python3
-"""Tests for Mark Editor TUI 0.2.2."""
+"""Tests for Mark Editor TUI 0.3.0."""
 
 from __future__ import annotations
 
 import contextlib
 import io
+import subprocess
 import sys
 import tempfile
 import unittest
 from pathlib import Path
+from unittest import mock
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
 
 from textual._xterm_parser import XTermParser
 
 from mark_editor_tui import markdown_ops as ops
+from mark_editor_tui.app import _file_signature
 from mark_editor_tui.compat import restore_alt_key_shortcuts
 from mark_editor_tui.constants import (
     APP_NAME,
     CONFIG_DIR,
     DEFAULT_THEME,
     RELEASE,
+    TEMP_MD,
     THEME_FILE,
     THEMES,
     VERSION,
@@ -31,10 +35,12 @@ from mark_editor_tui.helpers import (
     add_toc,
     cleanup_temp_html,
     cleanup_temp_md,
+    clear_pending_text,
     ensure_cache_dir,
     get_converter,
     load_theme,
     md_to_html,
+    md_to_pdf,
     md_to_plain,
     regenerate_toc,
     remove_toc,
@@ -72,8 +78,8 @@ class TestAppMetadata(unittest.TestCase):
         self.assertEqual(APP_NAME, "Mark Editor TUI")
 
     def test_version(self) -> None:
-        """The application version is 0.2.2."""
-        self.assertEqual(VERSION, "0.2.2")
+        """The application version is 0.3.0."""
+        self.assertEqual(VERSION, "0.3.0")
 
     def test_release(self) -> None:
         """The release identifier is present."""
@@ -457,8 +463,10 @@ class TestMarkdownConversion(unittest.TestCase):
     """Verify Markdown conversion helpers."""
 
     def test_converter_importable(self) -> None:
-        """get_converter emits HTML5 heading markup."""
-        self.assertIn("<h1>", get_converter().convert("# Title"))
+        """get_converter emits styled HTML5 heading markup."""
+        html = get_converter().convert("# Title")
+        self.assertIn("<h1", html)
+        self.assertIn("<style>", html)
 
     def test_md_to_plain(self) -> None:
         """md_to_plain strips markup and keeps the text."""
@@ -502,38 +510,86 @@ class TestMarkdownConversion(unittest.TestCase):
         self.assertEqual(text, "Text[1][2].\n\n[1]: One.\n[2]: Two.\n\nBody.\n")
 
     def test_md_to_html(self) -> None:
-        """md_to_html produces HTML5 heading markup."""
-        self.assertIn("<h1>", md_to_html("# Hello"))
+        """md_to_html produces styled HTML5 heading markup."""
+        html = md_to_html("# Hello")
+        self.assertIn("<h1", html)
+        self.assertIn("<style>", html)
 
-    def test_md_to_html_with_css(self) -> None:
-        """HTML with CSS includes an embedded stylesheet."""
-        self.assertIn("<style>", md_to_html("# Hello", include_css=True))
+    def test_md_to_html_landscape(self) -> None:
+        """Landscape HTML includes the landscape print CSS."""
+        html = md_to_html("# Hello", page_layout="landscape")
+        self.assertIn("/* Landscape PDF/Print */", html)
 
-    def test_md_to_pdf_uses_fixed_fonts(self) -> None:
-        """PDF export uses Noto Sans Mono/CJK plus Symbola for symbols."""
-        from unittest import mock
+    def test_md_to_pdf_uses_chromium_and_removes_temp_html(self) -> None:
+        """Chromium prints a temporary HTML file that is then deleted."""
+        directory = Path(tempfile.mkdtemp(prefix="mark_editor_tui-pdf-"))
+        source = directory / "report.md"
+        source.write_text("# Hello", encoding="utf-8")
+        output = directory / "report.pdf"
+        html = directory / "report.html"
+        observed = {}
 
-        import mark_editor_tui.helpers as mh
+        def fake_run(args, **kwargs):
+            observed["args"] = args
+            observed["html"] = Path(args[-1]).read_text(encoding="utf-8")
+            return mock.MagicMock()
 
-        with mock.patch.object(mh, "md2pdf_convert") as convert:
-            mh.md_to_pdf("# Title", "/tmp/out.pdf", source_dir="/tmp")
+        with mock.patch("mark_editor_tui.helpers.subprocess.run", side_effect=fake_run):
+            md_to_pdf(
+                "# Hello",
+                str(output),
+                source_file=source,
+                page_layout="landscape",
+            )
 
-        convert.assert_called_once()
-        kwargs = convert.call_args.kwargs
-        self.assertEqual(kwargs["main_font"], "Noto Sans Mono")
-        self.assertEqual(kwargs["head_font"], "Noto Sans Mono")
-        self.assertEqual(kwargs["mono_font"], "Noto Sans Mono")
-        self.assertEqual(kwargs["symbol_font"], "Symbola")
-        self.assertEqual(
-            kwargs["cjk_fonts"],
-            {
-                "ja": "Noto Sans Mono CJK JP",
-                "cn": "Noto Sans Mono CJK SC",
-                "tw": "Noto Sans Mono CJK TC",
-                "hk": "Noto Sans Mono CJK HK",
-                "kr": "Noto Sans Mono CJK KR",
-            },
+        self.assertEqual(observed["args"][0], "chromium")
+        self.assertEqual(observed["args"][2], f"--print-to-pdf={output.resolve()}")
+        self.assertEqual(Path(observed["args"][-1]).name, "report.html")
+        self.assertIn("/* Landscape PDF/Print */", observed["html"])
+        self.assertFalse(html.exists())
+
+    def test_md_to_pdf_uses_fallback_temp_name(self) -> None:
+        """A colliding HTML export is preserved; PDF uses ~~name.html instead."""
+        directory = Path(tempfile.mkdtemp(prefix="mark_editor_tui-pdf-"))
+        source = directory / "report.md"
+        existing = directory / "report.html"
+        existing.write_text("user data", encoding="utf-8")
+        fallback = directory / "~~report.html"
+        observed = {}
+
+        def fake_run(args, **kwargs):
+            observed["path"] = Path(args[-1])
+            return mock.MagicMock()
+
+        with mock.patch("mark_editor_tui.helpers.subprocess.run", side_effect=fake_run):
+            md_to_pdf("# Hello", str(directory / "report.pdf"), source_file=source)
+
+        self.assertEqual(observed["path"], fallback)
+        self.assertFalse(fallback.exists())
+        self.assertEqual(existing.read_text(encoding="utf-8"), "user data")
+
+    def test_md_to_pdf_cleans_html_after_chromium_failure(self) -> None:
+        """A failed Chromium run still removes the temporary HTML file."""
+        directory = Path(tempfile.mkdtemp(prefix="mark_editor_tui-pdf-"))
+        source = directory / "report.md"
+        error = subprocess.CalledProcessError(
+            1, "chromium", output="", stderr="print failed"
         )
+        with (
+            mock.patch("mark_editor_tui.helpers.subprocess.run", side_effect=error),
+            self.assertRaisesRegex(RuntimeError, "print failed"),
+        ):
+            md_to_pdf("# Hello", str(directory / "report.pdf"), source_file=source)
+        self.assertFalse((directory / "report.html").exists())
+
+    def test_file_signature_tracks_changes(self) -> None:
+        """_file_signature changes when the file changes on disk."""
+        directory = Path(tempfile.mkdtemp(prefix="mark_editor_tui-signature-"))
+        path = directory / "report.md"
+        path.write_text("first", encoding="utf-8")
+        before = _file_signature(path)
+        path.write_text("second version", encoding="utf-8")
+        self.assertNotEqual(_file_signature(path), before)
 
 
 class TestTempFileCleanup(unittest.TestCase):
@@ -564,6 +620,17 @@ class TestTempFileCleanup(unittest.TestCase):
         self.assertFalse((directory / "~doc.html").exists())
         self.assertTrue((directory / "~doc.md").exists())
         self.assertTrue((directory / "~notes").exists())
+
+    def test_clear_pending_text(self) -> None:
+        """clear_pending_text removes the cached unsaved-buffer file."""
+        directory = Path(tempfile.mkdtemp(prefix="mark_editor_tui-pending-"))
+        pending = directory / TEMP_MD
+        pending.write_text("unsaved", encoding="utf-8")
+        with mock.patch(
+            "mark_editor_tui.helpers.ensure_cache_dir", return_value=directory
+        ):
+            clear_pending_text()
+        self.assertFalse(pending.exists())
 
 
 class TestTableOfContents(unittest.TestCase):
@@ -1123,7 +1190,8 @@ class TestTextualApp(_IsolatedCacheMixin, unittest.IsolatedAsyncioTestCase):
             app._write_export(path, "html")
             await pilot.pause()
             self.assertTrue(path.exists())
-            self.assertIn("<h1>Export</h1>", path.read_text(encoding="utf-8"))
+            html = path.read_text(encoding="utf-8")
+            self.assertIn('<h1 id="export">Export</h1>', html)
 
     async def test_export_text(self) -> None:
         """The plain-text export strips Markdown markup."""

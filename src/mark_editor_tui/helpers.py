@@ -8,19 +8,16 @@ from __future__ import annotations
 
 import json
 import re
+import subprocess
 from functools import lru_cache
 from pathlib import Path
 
 from markdown2html5_base import MarkdownToHTML
-from markdown2pdf_base import convert as md2pdf_convert
 
 from mark_editor_tui.constants import (
     CACHE_DIR,
     CONFIG_DIR,
     DEFAULT_THEME,
-    PDF_CJK_FONTS,
-    PDF_FONT,
-    PDF_SYMBOL_FONT,
     TEMP_MD,
     THEME_FILE,
     THEMES,
@@ -112,45 +109,73 @@ def cleanup_temp_html(directory: Path) -> None:
     _delete_tilde_files(directory, ".html")
 
 
+def clear_pending_text() -> None:
+    """Delete the cached unsaved-buffer file used for session restore."""
+    (ensure_cache_dir() / TEMP_MD).unlink(missing_ok=True)
+
+
 @lru_cache(maxsize=1)
 def get_converter() -> MarkdownToHTML:
     """Return the singleton MarkdownToHTML converter (lazy initialization)."""
     return MarkdownToHTML()
 
 
-def md_to_html(text: str, *, include_css: bool = False) -> str:
-    """Convert Markdown *text* to HTML5 using markdown2html5-base."""
-    return get_converter().convert(text, include_css=include_css)
+def md_to_html(text: str, *, page_layout: str = "portrait") -> str:
+    """Convert Markdown *text* to styled HTML5 using markdown2html5-base."""
+    return get_converter().convert(text, page_layout=page_layout)
 
 
 def md_to_pdf(
     text: str,
     path: str,
     *,
-    source_dir: str | None = None,
+    source_file: Path | None = None,
     page_layout: str = "portrait",
 ) -> None:
-    """Convert Markdown *text* to PDF and save to *path* via pandoc/xelatex.
+    """Save Markdown *text* as PDF through a temporary styled HTML5 file.
 
-    ``source_dir`` is the directory used to resolve relative image paths;
-    it falls back to the output file's own directory when omitted.
-    ``page_layout`` is ``"portrait"`` (default) or ``"landscape"``.
-    Text uses Noto Sans Mono with the Noto Sans Mono CJK variants, while
-    symbol and checkbox glyphs use Symbola.
+    The HTML file is named after *source_file* (or ``document`` for an unsaved
+    buffer). If that name is taken, ``~~<stem>.html`` is used. It lives beside
+    the source so relative image links resolve and is deleted after headless
+    Chromium prints *path*.
     """
-    if source_dir is None:
-        source_dir = str(Path(path).resolve().parent)
-    md2pdf_convert(
-        text,
-        path,
-        source_dir=source_dir,
-        main_font=PDF_FONT,
-        head_font=PDF_FONT,
-        mono_font=PDF_FONT,
-        cjk_fonts=PDF_CJK_FONTS,
-        symbol_font=PDF_SYMBOL_FONT,
-        page_layout=page_layout,
-    )
+    output = Path(path).resolve()
+    if source_file is None:
+        directory = output.parent
+        stem = "document"
+    else:
+        directory = source_file.parent.resolve()
+        stem = source_file.stem
+    html_path = directory / f"{stem}.html"
+    if html_path.exists():
+        html_path = directory / f"~~{stem}.html"
+        if html_path.exists():
+            raise FileExistsError(f"Temporary HTML file already exists: {html_path}")
+
+    try:
+        html_path.write_text(
+            md_to_html(text, page_layout=page_layout), encoding="utf-8"
+        )
+        subprocess.run(
+            [
+                "chromium",
+                "--headless",
+                f"--print-to-pdf={output}",
+                str(html_path),
+            ],
+            check=True,
+            capture_output=True,
+            text=True,
+        )
+    except FileNotFoundError as exc:
+        raise RuntimeError("Chromium is required for PDF export") from exc
+    except subprocess.CalledProcessError as exc:
+        message = exc.stderr.strip() or exc.stdout.strip()
+        raise RuntimeError(
+            message or f"Chromium failed with code {exc.returncode}"
+        ) from exc
+    finally:
+        html_path.unlink(missing_ok=True)
 
 
 _DEF_RE = re.compile(r"^\s*:\s+\S")

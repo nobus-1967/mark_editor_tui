@@ -127,9 +127,9 @@ palette hint. Scroll this page with PageUp/PageDown or the mouse wheel.
 | Menus | Mouse click |
 | Close menu or command palette | Esc |
 
-The standard font is Noto Sans Mono; PDF export uses Noto Sans Mono together
-with the Noto Sans Mono CJK variants and Symbola for symbols and checkboxes. The
-terminal emulator controls the actual font family and rendering size.
+The terminal emulator controls the font family and rendering size in the editor.
+Exported HTML5 and PDF documents use the font stack embedded by
+markdown2html5-base and are rendered by Chromium when printing PDFs.
 """
 
 
@@ -146,7 +146,8 @@ It supports standard Markdown, GFM extensions, smart typography, table footers,
 hidden comments, language markers, ruby annotations, emoji shortcodes, YAML Front
 Matter and a table-of-contents generator.
 
-Exports are available as HTML5, HTML5 with embedded CSS3, PDF (portrait or
-landscape) and plain text. Previewing in a browser is intentionally not part
-of the TUI.
+Exports are available as styled HTML5 (portrait or landscape), PDF (portrait or
+landscape) and plain text. PDF export writes a temporary HTML file, prints it
+with headless Chromium and removes the file afterwards. Previewing in a browser
+is intentionally not part of the TUI.
 """

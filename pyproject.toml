@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "mark_editor_tui"
-version = "0.2.2"
+version = "0.3.0"
 description = "A terminal Markdown editor built with Textual"
 readme = "README.md"
 requires-python = ">=3.10"
@@ -23,8 +23,8 @@ classifiers = [
 ]
 dependencies = [
     "textual>=8.0",
-    "markdown2html5-base>=0.6.1",
-    "markdown2pdf-base>=0.6.4",
+    "markdown2html5-base>=1.0.0",
+    "chromium",
 ]
 
 [project.optional-dependencies]

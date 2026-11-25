@@ -5,7 +5,7 @@ from __future__ import annotations
 from pathlib import Path
 
 APP_NAME = "Mark Editor TUI"
-VERSION = "0.2.2"
+VERSION = "0.3.0"
 RELEASE = "2026.11"
 
 CONFIG_DIR = Path.home() / ".config" / "mark_editor_tui"
@@ -17,15 +17,7 @@ TEMP_MD = "Temp.md"
 THEMES: tuple[str, ...] = ("default", "green", "magenta", "blue")
 DEFAULT_THEME = "default"
 
-PDF_FONT = "Noto Sans Mono"
-PDF_CJK_FONTS: dict[str, str] = {
-    "ja": "Noto Sans Mono CJK JP",
-    "cn": "Noto Sans Mono CJK SC",
-    "tw": "Noto Sans Mono CJK TC",
-    "hk": "Noto Sans Mono CJK HK",
-    "kr": "Noto Sans Mono CJK KR",
-}
-PDF_SYMBOL_FONT = "Symbola"
+# PDF export is rendered via headless Chromium.
 
 EMOJIS: list[str] = [
     "joy",
@@ -127,7 +119,7 @@ LANGUAGE_CODES: tuple[tuple[str, str], ...] = (
 
 EXPORT_FORMATS: dict[str, str] = {
     "html": ".html",
-    "html_css": ".html",
+    "html_landscape": ".html",
     "pdf": ".pdf",
     "pdf_landscape": ".pdf",
     "text": ".txt",

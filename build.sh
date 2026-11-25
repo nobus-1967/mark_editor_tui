@@ -48,13 +48,11 @@ cd "$APP_DIR"
     --collect-all rich \
     --collect-all pygments \
     --collect-all markdown2html5_base \
-    --collect-all markdown2pdf_base \
     --collect-all mark_editor_tui \
     --copy-metadata textual \
     --copy-metadata rich \
     --copy-metadata pygments \
     --copy-metadata markdown2html5-base \
-    --copy-metadata markdown2pdf-base \
     --copy-metadata mark_editor_tui \
     "$ENTRY_POINT"
 
