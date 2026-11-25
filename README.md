@@ -1,6 +1,6 @@
 # Mark Editor TUI
 
-![](./assets/images/mark_editor_tui_0_2.png "Mark Editor TUI Screenshot")
+![](./assets/images/mark_editor_tui_0_3.png "Mark Editor TUI Screenshot")
 
 A terminal Markdown editor written in Python with [Textual](https://textual.textualize.io/). It runs in a modern terminal on Linux.
 
