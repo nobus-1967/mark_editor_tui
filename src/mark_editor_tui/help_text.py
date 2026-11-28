@@ -146,8 +146,8 @@ It supports standard Markdown, GFM extensions, smart typography, table footers,
 hidden comments, language markers, ruby annotations, emoji shortcodes, YAML Front
 Matter and a table-of-contents generator.
 
-Exports are available as styled HTML5 (portrait or landscape), PDF (portrait or
-landscape) and plain text. PDF export writes a temporary HTML file, prints it
-with headless Chromium and removes the file afterwards. Previewing in a browser
-is intentionally not part of the TUI.
+Exports are available as styled HTML5 (portrait), PDF (portrait or landscape)
+and plain text. PDF export writes a temporary HTML file, prints it with headless
+Chromium using --no-pdf-header-footer and removes the file afterwards. Previewing
+in a browser is intentionally not part of the TUI.
 """

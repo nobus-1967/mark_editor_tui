@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Tests for Mark Editor TUI 0.3.0."""
+"""Tests for Mark Editor TUI 0.3.1."""
 
 from __future__ import annotations
 
@@ -22,6 +22,7 @@ from mark_editor_tui.compat import restore_alt_key_shortcuts
 from mark_editor_tui.constants import (
     APP_NAME,
     CONFIG_DIR,
+    CONVERT_FORMATS,
     DEFAULT_THEME,
     RELEASE,
     TEMP_MD,
@@ -29,13 +30,15 @@ from mark_editor_tui.constants import (
     THEMES,
     VERSION,
 )
-from mark_editor_tui.help_text import shortcuts_markdown
+from mark_editor_tui.help_text import about_markdown, shortcuts_markdown
 from mark_editor_tui.helpers import (
+    _pdf_html_path,
     add_heading_ids,
     add_toc,
     cleanup_temp_html,
     cleanup_temp_md,
     clear_pending_text,
+    conversion_settings,
     ensure_cache_dir,
     get_converter,
     load_theme,
@@ -78,8 +81,8 @@ class TestAppMetadata(unittest.TestCase):
         self.assertEqual(APP_NAME, "Mark Editor TUI")
 
     def test_version(self) -> None:
-        """The application version is 0.3.0."""
-        self.assertEqual(VERSION, "0.3.0")
+        """The application version is 0.3.1."""
+        self.assertEqual(VERSION, "0.3.1")
 
     def test_release(self) -> None:
         """The release identifier is present."""
@@ -184,6 +187,44 @@ class TestAppMetadata(unittest.TestCase):
         )
 
 
+class TestConvertFormats(unittest.TestCase):
+    """Verify export formats and their extension/layout mapping."""
+
+    def test_convert_formats(self) -> None:
+        """HTML5 is portrait-only; PDF keeps portrait and landscape."""
+        self.assertEqual(
+            CONVERT_FORMATS,
+            {
+                "html": (".html", "portrait"),
+                "text": (".txt", "portrait"),
+                "pdf": (".pdf", "portrait"),
+                "pdf_landscape": (".pdf", "landscape"),
+            },
+        )
+        self.assertNotIn("html_landscape", CONVERT_FORMATS)
+
+    def test_conversion_settings(self) -> None:
+        """Each export key maps to the right extension and page layout."""
+        self.assertEqual(
+            [conversion_settings(key) for key in CONVERT_FORMATS],
+            [
+                (".html", "portrait"),
+                (".txt", "portrait"),
+                (".pdf", "portrait"),
+                (".pdf", "landscape"),
+            ],
+        )
+        self.assertEqual(conversion_settings("unknown"), (".txt", "portrait"))
+
+    def test_export_commands_match_convert_formats(self) -> None:
+        """The export menu offers every format exactly once."""
+        from mark_editor_tui.app import MarkEditorApp
+
+        keys = [key for _label, key, _help_text in MarkEditorApp.EXPORT_COMMANDS]
+        self.assertEqual(set(keys), set(CONVERT_FORMATS))
+        self.assertEqual(len(keys), len(CONVERT_FORMATS))
+
+
 class TestCommandLine(unittest.TestCase):
     """Verify the command-line help and version options."""
 
@@ -264,6 +305,20 @@ class TestThemeStorage(_IsolatedCacheMixin, unittest.TestCase):
         (self._tmp / ".config" / "theme.json").write_text(
             '{"mode": "purple"}', encoding="utf-8"
         )
+        self.assertEqual(load_theme(), DEFAULT_THEME)
+
+    def test_malformed_config_falls_back(self) -> None:
+        """Invalid JSON in theme.json resolves to the default theme."""
+        (self._tmp / ".config").mkdir(parents=True, exist_ok=True)
+        (self._tmp / ".config" / "theme.json").write_text(
+            "{broken json", encoding="utf-8"
+        )
+        self.assertEqual(load_theme(), DEFAULT_THEME)
+
+    def test_non_object_config_falls_back(self) -> None:
+        """A JSON list instead of an object resolves to the default theme."""
+        (self._tmp / ".config").mkdir(parents=True, exist_ok=True)
+        (self._tmp / ".config" / "theme.json").write_text('["green"]', encoding="utf-8")
         self.assertEqual(load_theme(), DEFAULT_THEME)
 
     def test_theme_file_has_no_font_size(self) -> None:
@@ -516,9 +571,14 @@ class TestMarkdownConversion(unittest.TestCase):
         self.assertIn("<style>", html)
 
     def test_md_to_html_landscape(self) -> None:
-        """Landscape HTML includes the landscape print CSS."""
-        html = md_to_html("# Hello", page_layout="landscape")
-        self.assertIn("/* Landscape PDF/Print */", html)
+        """Landscape HTML marks the root element with data-orientation."""
+        portrait = md_to_html("# Hello")
+        landscape = md_to_html("# Hello", page_layout="landscape")
+        self.assertEqual(portrait.splitlines()[1], "<html>")
+        self.assertEqual(
+            landscape.splitlines()[1],
+            '<html lang="en" data-orientation="landscape">',
+        )
 
     def test_md_to_pdf_uses_chromium_and_removes_temp_html(self) -> None:
         """Chromium prints a temporary HTML file that is then deleted."""
@@ -542,10 +602,17 @@ class TestMarkdownConversion(unittest.TestCase):
                 page_layout="landscape",
             )
 
-        self.assertEqual(observed["args"][0], "chromium")
-        self.assertEqual(observed["args"][2], f"--print-to-pdf={output.resolve()}")
-        self.assertEqual(Path(observed["args"][-1]).name, "report.html")
-        self.assertIn("/* Landscape PDF/Print */", observed["html"])
+        self.assertEqual(
+            observed["args"],
+            [
+                "chromium",
+                "--headless",
+                "--no-pdf-header-footer",
+                f"--print-to-pdf={output.resolve()}",
+                str(html),
+            ],
+        )
+        self.assertIn('<html lang="en" data-orientation="landscape">', observed["html"])
         self.assertFalse(html.exists())
 
     def test_md_to_pdf_uses_fallback_temp_name(self) -> None:
@@ -567,6 +634,23 @@ class TestMarkdownConversion(unittest.TestCase):
         self.assertEqual(observed["path"], fallback)
         self.assertFalse(fallback.exists())
         self.assertEqual(existing.read_text(encoding="utf-8"), "user data")
+
+    def test_pdf_html_path_collision(self) -> None:
+        """PDF export falls back to a ~~-prefixed HTML file when needed."""
+        directory = Path(tempfile.mkdtemp(prefix="mark_editor_tui-pdf-"))
+        source = directory / "report.md"
+        html = directory / "report.html"
+        fallback = directory / "~~report.html"
+        self.assertEqual(_pdf_html_path(directory / "report.pdf", source), html)
+        self.assertEqual(
+            _pdf_html_path(directory / "report.pdf", None),
+            directory / "document.html",
+        )
+        html.write_text("user data", encoding="utf-8")
+        self.assertEqual(_pdf_html_path(directory / "report.pdf", source), fallback)
+        fallback.write_text("fallback data", encoding="utf-8")
+        with self.assertRaises(FileExistsError):
+            _pdf_html_path(directory / "report.pdf", source)
 
     def test_md_to_pdf_cleans_html_after_chromium_failure(self) -> None:
         """A failed Chromium run still removes the temporary HTML file."""
@@ -714,6 +798,13 @@ class TestTableOfContents(unittest.TestCase):
 
 class TestHelpText(unittest.TestCase):
     """Verify the local help module and its shortcut scheme."""
+
+    def test_about_describes_current_exports(self) -> None:
+        """About documents portrait-only HTML5 and headerless PDF printing."""
+        text = about_markdown()
+        self.assertIn("styled HTML5 (portrait)", text)
+        self.assertIn("--no-pdf-header-footer", text)
+        self.assertNotIn("HTML5 (portrait or landscape)", text)
 
     def test_shortcuts_use_terminal_safe_keys(self) -> None:
         """The local shortcut module lists F1–F12 and the terminal-safe aliases."""

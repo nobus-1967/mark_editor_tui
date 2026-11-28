@@ -6,13 +6,13 @@ A terminal Markdown editor written in Python with [Textual](https://textual.text
 
 Mark Editor TUI is based on [Mark Editor](https://github.com/nobus-1967/mark_editor). Markdown is converted to styled HTML5 by [markdown2html5-base](https://github.com/nobus-1967/markdown2html5-base), and PDF export is produced by printing that HTML5 with headless [Chromium](https://www.chromium.org/).
 
-**Current version: 0.3.0 (2026.11).**
+**Current version: 0.3.1 (2026.11).**
 
 ## Features
 
 - Edit Markdown with syntax highlighting, line numbers, soft wrap and a cursor-line highlight.
 - File actions: New, Open, Reopen, Save, Save As.
-- Export: HTML5 (portrait or landscape), PDF (portrait or landscape) and plain text.
+- Export: HTML5 (portrait), PDF (portrait or landscape) and plain text.
 - Find, replace and replace-all, optionally with regular expressions.
 - Formatting: bold, italic, underline, strikethrough, superscript, subscript, inline code, highlighted text, links, header IDs, header links, footnotes, comments and escapes.
 - Paragraph commands: headings 1–6, paragraphs, ordered/unordered/todo lists, definition lists, blockquotes, fenced code blocks, images, horizontal rules, hard line breaks and YAML Front Matter.
@@ -21,7 +21,7 @@ Mark Editor TUI is based on [Mark Editor](https://github.com/nobus-1967/mark_edi
 - Language markers, BCP 47 language-code picker, furigana/ruby annotations, emoji shortcodes, special signs and date/time insertion.
 - Four color themes (`default`, `green`, `magenta`, `blue`) with `File → Toggle Theme` (`Alt+T`), persisted between runs.
 - Command palette (`Ctrl+P`), clickable menu bar, clickable F1–F12 bar and modal dialogs.
-- Built-in help: keyboard shortcuts and About.
+- Built-in help: keyboard shortcuts and About with version `0.3.1 (2026.11)`.
 - External file changes are detected and the open file is reloaded automatically.
 
 Browser preview is intentionally not part of the TUI. Use HTML5 or PDF export when a rendered document is needed.
@@ -31,7 +31,7 @@ Browser preview is intentionally not part of the TUI. Use HTML5 or PDF export wh
 - GNU/Linux
 - Python >= 3.10
 - [Textual](https://pypi.org/project/textual/) >= 8.0
-- [markdown2html5-base](https://github.com/nobus-1967/markdown2html5-base) >= 1.0.0
+- [markdown2html5-base](https://github.com/nobus-1967/markdown2html5-base) >= 1.1.0
 - [Chromium](https://www.chromium.org/) for PDF export
 
 ## Installation
@@ -256,7 +256,7 @@ While editing, the buffer is saved to a temporary Markdown file so unsaved work 
 
 Temporary Markdown files are deleted when a document is closed, when opening or reopening another file, and when the editor exits via Quit or a termination signal. The cached unsaved-buffer file is removed on exit as well.
 
-PDF export writes a temporary HTML5 file named after the source document (`<stem>.html` next to the source file, or `document.html` for an unsaved buffer). If that name already exists, `~~<stem>.html` is used. Existing HTML files are never overwritten. The temporary HTML file is deleted immediately after Chromium finishes printing, even if printing fails.
+PDF export writes a temporary HTML5 file named after the source document (`<stem>.html` next to the source file, or `document.html` for an unsaved buffer). If that name already exists, `~~<stem>.html` is used. Existing HTML files are never overwritten. The file is printed with `chromium --headless --no-pdf-header-footer --print-to-pdf=<output.pdf> <input.html>` and deleted immediately afterwards, even if printing fails.
 
 ## Development
 

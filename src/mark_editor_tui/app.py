@@ -1,4 +1,4 @@
-"""Textual application for Mark Editor TUI 0.3.0."""
+"""Textual application for Mark Editor TUI 0.3.1."""
 
 from __future__ import annotations
 
@@ -24,9 +24,9 @@ from mark_editor_tui import markdown_ops
 from mark_editor_tui.compat import restore_alt_key_shortcuts
 from mark_editor_tui.constants import (
     APP_NAME,
+    CONVERT_FORMATS,
     DEFAULT_THEME,
     EMOJIS,
-    EXPORT_FORMATS,
     LANGUAGE_CODES,
     LANGUAGE_TAGS,
     SPECIAL_SIGNS,
@@ -36,16 +36,18 @@ from mark_editor_tui.constants import (
 from mark_editor_tui.editor import MarkdownEditor
 from mark_editor_tui.help_text import about_markdown, shortcuts_markdown
 from mark_editor_tui.helpers import (
+    _write_export as write_export,
+)
+from mark_editor_tui.helpers import (
     add_heading_ids,
     add_toc,
     cleanup_temp_html,
     cleanup_temp_md,
     clear_pending_text,
+    conversion_settings,
     ensure_cache_dir,
     load_temp_md,
     load_theme,
-    md_to_html,
-    md_to_pdf,
     md_to_plain,
     regenerate_toc,
     remove_toc,
@@ -318,11 +320,6 @@ class MarkEditorApp(App[None]):
 
     EXPORT_COMMANDS: tuple[tuple[str, str, str], ...] = (
         ("Export: HTML5 (portrait)", "html", "HTML5 in portrait orientation"),
-        (
-            "Export: HTML5 (landscape)",
-            "html_landscape",
-            "HTML5 in landscape orientation",
-        ),
         ("Export: PDF (portrait)", "pdf", "PDF in portrait orientation"),
         ("Export: PDF (landscape)", "pdf_landscape", "PDF in landscape orientation"),
         ("Export: Plain text", "text", "Plain text without Markdown syntax"),
@@ -699,7 +696,7 @@ class MarkEditorApp(App[None]):
 
     def _export(self, key: str) -> None:
         """Ask for a destination and export the document."""
-        ext = EXPORT_FORMATS.get(key, ".txt")
+        ext = CONVERT_FORMATS[key][0]
         base = self.current_file.stem if self.current_file else "document"
         start = self.current_file.parent if self.current_file else Path.cwd()
         self.push_screen(
@@ -717,25 +714,12 @@ class MarkEditorApp(App[None]):
         """Write the document in the selected export format."""
         if path is None:
             return
+        if key not in CONVERT_FORMATS:
+            self.notify(f"Unknown export format: {key}", severity="error")
+            return
+        ext, page_layout = conversion_settings(key)
         try:
-            content = self.editor.text
-            if key in {"html", "html_landscape"}:
-                layout = "landscape" if key == "html_landscape" else "portrait"
-                html = md_to_html(content, page_layout=layout)
-                path.write_text(html, encoding="utf-8")
-            elif key == "text":
-                path.write_text(md_to_plain(content), encoding="utf-8")
-            elif key in {"pdf", "pdf_landscape"}:
-                layout = "landscape" if key == "pdf_landscape" else "portrait"
-                md_to_pdf(
-                    content,
-                    str(path),
-                    source_file=self.current_file,
-                    page_layout=layout,
-                )
-            else:
-                self.notify(f"Unknown export format: {key}", severity="error")
-                return
+            write_export(ext, self.editor.text, path, self.current_file, page_layout)
         except Exception as exc:
             self.notify(str(exc), title="Export", severity="error")
             return

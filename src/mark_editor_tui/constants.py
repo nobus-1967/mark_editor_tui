@@ -5,7 +5,7 @@ from __future__ import annotations
 from pathlib import Path
 
 APP_NAME = "Mark Editor TUI"
-VERSION = "0.3.0"
+VERSION = "0.3.1"
 RELEASE = "2026.11"
 
 CONFIG_DIR = Path.home() / ".config" / "mark_editor_tui"
@@ -117,10 +117,10 @@ LANGUAGE_CODES: tuple[tuple[str, str], ...] = (
     ("zh-Hant-TW", "Traditional Chinese (Taiwan)"),
 )
 
-EXPORT_FORMATS: dict[str, str] = {
-    "html": ".html",
-    "html_landscape": ".html",
-    "pdf": ".pdf",
-    "pdf_landscape": ".pdf",
-    "text": ".txt",
+# Export key -> (file extension, page layout). HTML5 is portrait-only.
+CONVERT_FORMATS: dict[str, tuple[str, str]] = {
+    "html": (".html", "portrait"),
+    "text": (".txt", "portrait"),
+    "pdf": (".pdf", "portrait"),
+    "pdf_landscape": (".pdf", "landscape"),
 }
